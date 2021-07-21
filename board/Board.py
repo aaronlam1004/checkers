@@ -145,7 +145,7 @@ class Board(object):
         promoted = False
         self.board[piece.row][piece.col] = '-'
         piece.update_coord(coord)
-        if (piece.row == 0 and self.turn == 0) or (piece.row == self.n - 1 and self.turn == 1) and not piece.isking:
+        if (piece.row == 0 and self.turn == self.focus) or (piece.row == self.n - 1 and self.turn == self.focus ^ 1) and not piece.isking:
             piece.promote()
             promoted = True
         self.board[piece.row][piece.col] = piece

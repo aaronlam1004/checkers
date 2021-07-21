@@ -10,17 +10,24 @@ Additional Python packages need to be installed which can be seen in `requiremen
 All of these packages can be installed using:  
 `pip install -r requirements.txt`
 ## Running
-Simply call `python main.py` to run the program after all of the packages have been installed.
+Simply call `python checkers.py` to run the program after all of the packages have been installed.
+### Playing locally
+### Playing online 
 ## TODO
-- [ ] Write comments. 
-- [ ] Reorganization (ake abstract Board class, tidy of `game.py`, etc.).
-- [ ] Make font not Comic Sans MS.
+- [ ] Finish host and client scripts to make the game playable online.
+    - Allow host to specify port.
+    - Allow client to specify IP and port.
+- [ ] Finish making the menus.
+    - Main menu
+    - Game over menu
+    - Host/connect menu
+- [ ] Multiple modes
+    - ~~Standard~~
+    - Casual
+    - International
+- [ ] Reorganization (tidy `game.py`, etc.).
 - [ ] Move limit so that game ends after a certain number of moves without capturing.
-- [ ] Finish making the main menu.
-- [ ] Multiple modes (standard, casual, international, etc.)
-- [ ] Add server and client scripts to make the game playable online.
 - [ ] Option to rotate the board when move is complete (not for online).
 - [ ] Allow players to choose colors.
-- [ ] Improve graphics.
-- [ ] Better optimization.
+- [ ] Write comments. 
 - [ ] Make program an executable.

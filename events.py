@@ -29,11 +29,9 @@ def move_piece(board, piece, moves, bcoords):
                 capture = captures[i]
             next_moves = board.make_move(piece, move, capture)
 
-            # if board.gamestate() != -1:
-            #     print("Game end")
             if len(next_moves[1]) == 0:
                 board.change_turn()
-                return None, [[], []], 1
+                return None, [[], []], capture, 1
             else:
-                return piece, next_moves, 1
-    return None, [[], []], 0
+                return piece, next_moves, capture, 1
+    return None, [[], []], None, 0

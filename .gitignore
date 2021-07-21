@@ -4,4 +4,5 @@ checkers
 gamestate1.txt
 gamestate2.txt
 console.py
+main.py
 *.swp

@@ -7,7 +7,7 @@ from board.Board import *
 from board.StandardBoard import StandardBoard
 
 class Game(object):
-    def __init__(self, board="standard", name="Checkers", n=8, length=700, border=20, reflect=False):
+    def __init__(self, board="standard", name="Checkers", n=8, length=500, border=20, reflect=False):
         if board == "standard":
             self.board = StandardBoard()
 
@@ -19,10 +19,13 @@ class Game(object):
 
         # self.mode = "online"
 
-        self.width = 700
-        self.height = 700
-        self.border = 20
-        self.canvas = Canvas(700, 20, name)
+        self.width = length
+        self.height = length 
+        self.border = border
+        self.canvas = Canvas(length, border, name)
+
+    def home_screen(self):
+        return None
 
     def play_online(self, player, opp):
         running = True
@@ -31,6 +34,9 @@ class Game(object):
         sel_moves = [[], []]
         valid = []
         while running:
+            if self.board.state() != -1:
+                break
+
             self.canvas.screen.fill((0, 0, 0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -45,10 +51,12 @@ class Game(object):
                             prev_row = sel_piece.row
                             prev_col = sel_piece.col
 
-                        next_piece, next_moves, flag = move_piece(self.board, sel_piece, sel_moves, coords)
+                        next_piece, next_moves, capture, flag = move_piece(self.board, sel_piece, sel_moves, coords)
 
                         if flag == 1:
                             mess = f"{self.board.turn}\n{prev_row} {prev_col}\n{sel_piece.row} {sel_piece.col}"
+                            if capture != None:
+                                mess += f"\n{capture.row} {capture.col}"
                             opp.sendall(bytes(mess, "utf-8"))
 
                         sel_piece = next_piece
@@ -70,7 +78,6 @@ class Game(object):
 
             self.canvas.update()
 
-        pygame.quit()
 
     def play_local(self):
         running = True
@@ -89,7 +96,7 @@ class Game(object):
                         sel_piece = piece
                         sel_moves = moves
                     else:
-                        sel_piece, sel_moves, _ = move_piece(self.board, sel_piece, sel_moves, coords)
+                        sel_piece, sel_moves, _, _ = move_piece(self.board, sel_piece, sel_moves, coords)
                         if sel_piece != None:
                             valid = [sel_piece]
                             captor = sel_piece
@@ -102,7 +109,6 @@ class Game(object):
 
             self.canvas.update()
 
-        pygame.quit()
 
 class Canvas(object):
     def __init__(self, length, border, name):
