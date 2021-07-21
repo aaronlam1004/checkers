@@ -1,10 +1,38 @@
-from Piece import Piece
+class Piece(object):
+    def __init__(self, row, col, player, index):
+        self.row = row
+        self.col = col
+        self.isking = False
+        self.player = player
+        if player == 0:
+            self.desc = 'r'
+        else:
+            self.desc = 'b'
+        self.index = index
+    
+    def __str__(self):
+        return str(self.desc)
 
-class StandardBoard(object):
+    def stringify(self):
+        return f"Piece [{self.desc}] (({self.row},{self.col}), {self.player}, {self.index})"
+    
+    def playstring(self):
+        return f"Piece [{self.desc}] ({self.row},{self.col})"
+
+    def promote(self):
+        self.desc = self.desc.upper() 
+        self.isking = True
+
+    def update_coord(self, coord):
+        self.row = coord[0]
+        self.col = coord[1]
+
+class Board(object):
     def __init__(self):
         self.turn = 0
         self.pieces = {'0': [], '1': []}
         self.end = {'0': 0, '1': 0}
+        self.focus = 0
 
     def __str__(self):
         board = '  ' +  " ".join(str(i) for i in range(self.n)) + '\n'
@@ -38,7 +66,7 @@ class StandardBoard(object):
                 self.board[bottom][j] = piece 
                 self.pieces['0'].append(piece)
 
-    def read_game_state(self, state):
+    def import_game(self, gamefile):
         """
         Read a text file of a checkers game and load it in. 
         """
@@ -46,7 +74,7 @@ class StandardBoard(object):
         self.board = []
         r = 0
         n = 0
-        with open(state, 'r') as f:
+        with open(gamefile, 'r') as f:
             for line in f:
                 row = []
                 c = 0
@@ -75,14 +103,13 @@ class StandardBoard(object):
         assert r == c
         self.n = n
 
-    
     def change_turn(self):
         """
         Changes whose turn it is (player 1 or 2)
         """
         self.turn = self.turn ^ 1
 
-    def gamestate(self):
+    def state(self):
         """
         Checks the state of the board.
              0: means that player 1 wins since all of player 2's pieces have been captured
@@ -138,85 +165,11 @@ class StandardBoard(object):
         else:
             return [], []
 
-
     def in_bounds(self, row, col):
         """
         Checks to see if row and col are within the bounds of the board.
         """
         return row >= 0 and row < self.n and col >= 0 and col < self.n
-
-    def capture_moves(self, row, col, moves, captures, isking):
-        """
-        Checks to see if a piece can be captured and, if it can, keeps track of which moves capture which pieces.
-        """
-        if self.turn == 0 or self.turn == 1 and isking:
-            if self.in_bounds(row - 1, col - 1):
-                if type(self.board[row - 1][col - 1]) is Piece and self.board[row - 1][col - 1].player == self.turn ^ 1:
-                    if self.in_bounds(row - 2, col - 2) and self.board[row - 2][col - 2] == '-':
-                        captures.append(self.board[row - 1][col - 1])
-                        moves.append((row - 2, col - 2))
-            if self.in_bounds(row - 1, col + 1):
-                if type(self.board[row - 1][col + 1]) is Piece and self.board[row - 1][col + 1].player == self.turn ^ 1:
-                    if self.in_bounds(row - 2, col + 2) and self.board[row - 2][col + 2] == '-':
-                        captures.append(self.board[row - 1][col + 1])
-                        moves.append((row - 2, col + 2))
-
-        if self.turn == 1 or self.turn == 0 and isking:
-            if self.in_bounds(row + 1, col - 1):
-                if type(self.board[row + 1][col - 1]) is Piece and self.board[row + 1][col - 1].player == self.turn ^ 1:
-                    if self.in_bounds(row + 2, col - 2) and self.board[row + 2][col - 2] == '-':
-                        captures.append(self.board[row + 1][col - 1])
-                        moves.append((row + 2, col - 2))
-            if self.in_bounds(row + 1, col + 1):
-                if type(self.board[row + 1][col + 1]) is Piece and self.board[row + 1][col + 1].player == self.turn ^ 1:
-                    if self.in_bounds(row + 2, col + 2) and self.board[row + 2][col + 2] == '-':
-                        captures.append(self.board[row + 1][col + 1])
-                        moves.append((row + 2, col + 2))
-
-    def get_piece_moves(self, piece):
-        """
-        Get all the possible moves for the current piece.
-        """
-        moves = []
-        captures = []
-        row = piece.row
-        col = piece.col
-        self.capture_moves(row, col, moves, captures, piece.isking)
-        if len(moves) == 0:
-            if piece.player == 0 or piece.player == 1 and piece.isking:
-                if self.in_bounds(row - 1, col - 1) and self.board[row - 1][col - 1] == '-':
-                    moves.append((row - 1, col - 1))
-                if self.in_bounds(row - 1, col + 1) and self.board[row - 1][col + 1] == '-':
-                    moves.append((row - 1, col + 1))
-            if piece.player == 1 or piece.player == 0 and piece.isking:
-                if self.in_bounds(row + 1, col - 1) and self.board[row + 1][col - 1] == '-':
-                    moves.append((row + 1, col - 1))
-                if self.in_bounds(row + 1, col + 1) and self.board[row + 1][col + 1] == '-':
-                    moves.append((row + 1, col + 1))
-        return moves, captures
-        
-    def get_all_possible_moves(self):
-        """
-        Gets all the possible moves available that a player can make according to the
-        "standard" rules of checkers.
-        """
-        p = []
-        m = []
-        can_capture = False
-        turn = str(self.turn)
-        index = 0
-        for piece in self.pieces[turn][:self.end[turn]]:
-            moves, captures = self.get_piece_moves(piece)
-            if not can_capture and len(captures) > 0:
-                can_capture = True
-                index = len(p)
-            if can_capture and len(captures) > 0:
-                p.append(piece)
-                m.append(moves)
-            elif not can_capture and len(moves) > 0:
-                p.append(piece)
-                m.append([moves, captures])
-        return p[index:], m[index:] 
 
     def reflect(self):
         """
@@ -225,15 +178,22 @@ class StandardBoard(object):
         for piece in self.pieces['0'][:self.end['0']]:
             if str(self.board[piece.row][piece.col]) == piece.desc:
                 self.board[piece.row][piece.col] = '-'
-                row = (self.n - 1) - piece.row
-                col = (self.n - 1) - piece.col 
-                piece.update_coord((row, col))
-                self.board[piece.row][piece.col] = piece
-
+            row = (self.n - 1) - piece.row
+            col = (self.n - 1) - piece.col 
+            piece.update_coord((row, col))
+            self.board[piece.row][piece.col] = piece
         for piece in self.pieces['1'][:self.end['1']]:
             if str(self.board[piece.row][piece.col]) == piece.desc:
                 self.board[piece.row][piece.col] = '-'
-                row = (self.n - 1) - piece.row
-                col = (self.n - 1) - piece.col 
-                piece.update_coord((row, col))
-                self.board[piece.row][piece.col] = piece
+            row = (self.n - 1) - piece.row
+            col = (self.n - 1) - piece.col 
+            piece.update_coord((row, col))
+            self.board[piece.row][piece.col] = piece
+        self.focus = 1
+
+    def reflect_move(self, coords):
+        row = coords[0]
+        col = coords[1]
+        newr = (self.n - 1) - row
+        newc = (self.n - 1) - col
+        return (newr, newc) 

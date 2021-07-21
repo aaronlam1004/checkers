@@ -1,12 +1,16 @@
-from StandardBoard import StandardBoard
-from game import *
+from board.Board import *
+from board.StandardBoard import StandardBoard
+from events import *
+from graphics import *
 import pygame
 
 if __name__ == "__main__":
     N = 8
 
     board = StandardBoard()
-    board.initialize(N)
+    board.import_game("./gamestate2.txt")
+    # board.initialize(N)
+    # board.reflect()
 
     pygame.init()
     pygame.font.init()
@@ -18,6 +22,11 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((LENGTH, LENGTH), pygame.RESIZABLE)
 
     running = True
+    selected_piece = None
+    selected_moves = [[],[]]
+    valid_pieces = []
+    captor = None 
+
     button_area = ()
     button_high = False
 
@@ -28,7 +37,7 @@ if __name__ == "__main__":
     mode = 1 
 
     while running:
-        if board.gamestate() != -1:
+        if board.state() != -1:
             mode = 2
 
         # Fill the background
@@ -40,7 +49,17 @@ if __name__ == "__main__":
                 screen = pygame.display.set_mode(event.size, pygame.RESIZABLE)
             elif event.type == pygame.MOUSEBUTTONUP:
                 if mode == 1:
-                    game_handler(screen, board, BORDER, N)
+                    piece, moves, coords = get_selected_piece(screen, board, BORDER, N, valid_pieces)
+                    if piece != None and len(moves[0]) > 0:
+                        selected_piece = piece
+                        selected_moves = moves
+                    else:
+                        selected_piece, selected_moves = move_piece(board, selected_piece, selected_moves, coords)
+                        if selected_piece != None:
+                            valid_pieces = [selected_piece]
+                            captor = selected_piece
+                        else:
+                            captor = None
                 elif mode == 2:
                     if is_in_button_area(button_area):
                         mode = 1
@@ -64,17 +83,17 @@ if __name__ == "__main__":
             x = width / 2 - (bwidth / 2)
             y = height / 2
             buttonfont = pygame.font.SysFont("Comic Sans MS", fontsize)
-            create_button(screen, "PLAY", buttonfont, (0, 0, 0), (x, y), (bwidth, bheight), (255, 0, 0))
+            draw_button(screen, "PLAY", buttonfont, (0, 0, 0), (x, y), (bwidth, bheight), (255, 0, 0))
             # create_button(screen, "QUIT", buttonfont, (0, 0, 0), (x, y + bheight + bheight / 2), (bwidth, bheight), (255, 0, 0))
         elif mode == 1:
-            draw_board(screen, board, screen.get_rect().size, BORDER, N)
+            valid_pieces = draw_board(screen, board, screen.get_rect().size, BORDER, N, selected_moves, captor)
         else:
-            draw_board(screen, board, screen.get_rect().size, BORDER, N)
+            draw_board(screen, board, screen.get_rect().size, BORDER, N, selected_moves, captor)
 
             width, height = screen.get_rect().size
             fontsize = int(100 * height / LENGTH)
             titlefont = pygame.font.SysFont("Comic Sans MS", fontsize)
-            textsurface = titlefont.render(f"Player {board.gamestate() + 1} wins!!", False, (255, 0, 0))
+            textsurface = titlefont.render(f"Player {board.state() + 1} wins!!", False, (255, 0, 0))
             twidth, _ = textsurface.get_rect().size
             x = width / 2 - (twidth / 2)
             screen.blit(textsurface, (x, BORDER))
@@ -86,9 +105,9 @@ if __name__ == "__main__":
             y = height / 2
             buttonfont = pygame.font.SysFont("Comic Sans MS", fontsize)
             if button_high:
-                create_button(screen, "PLAY AGAIN", buttonfont, (0, 0, 0), (x, y), (bwidth, bheight), (255, 255, 0))
+                draw_button(screen, "PLAY AGAIN", buttonfont, (0, 0, 0), (x, y), (bwidth, bheight), (255, 255, 0))
             else:
-                create_button(screen, "PLAY AGAIN", buttonfont, (0, 0, 0), (x, y), (bwidth, bheight), (255, 0, 0))
+                draw_button(screen, "PLAY AGAIN", buttonfont, (0, 0, 0), (x, y), (bwidth, bheight), (255, 0, 0))
             button_area = (x, x + bwidth, y, y + bheight)
             
 

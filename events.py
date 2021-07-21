@@ -1,0 +1,39 @@
+import pygame
+
+def mouse_board_coords(window, border, n, pos_m):
+    width, height = window.get_rect().size
+    metric_x = (width - border) // n
+    metric_y = (height - border) // n
+    return (pos_m[1] // metric_y, pos_m[0] // metric_x)
+
+def is_in_button_area(area):
+    x, y = pygame.mouse.get_pos()
+    return x >= area[0] and x <= area[1] and y >= area[2] and y <= area[3]
+
+def get_selected_piece(window, board, border, n, valid):
+    mouse_pos = pygame.mouse.get_pos()
+    bcoords = mouse_board_coords(window, border, n, mouse_pos)
+    piece = board.get_piece(bcoords)
+    if piece != None and piece in valid:
+        return piece, board.get_piece_moves(piece), bcoords
+    return None, [[], []], bcoords
+
+def move_piece(board, piece, moves, bcoords):
+    captures = moves[1]
+    for i in range(len(moves[0])):
+        move = moves[0][i]
+        if move[0] == bcoords[0] and move[1] == bcoords[1]:
+            moved = True
+            capture = None 
+            if len(captures) > 0:
+                capture = captures[i]
+            next_moves = board.make_move(piece, move, capture)
+
+            # if board.gamestate() != -1:
+            #     print("Game end")
+            if len(next_moves[1]) == 0:
+                board.change_turn()
+                return None, [[], []], 1
+            else:
+                return piece, next_moves, 1
+    return None, [[], []], 0
