@@ -1,8 +1,9 @@
 tmp
 __pycache__
-checkers
 gamestate1.txt
 gamestate2.txt
 console.py
+host.py
+client.py
 main.py
-*.swp
+requirements.txt
