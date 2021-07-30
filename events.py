@@ -1,4 +1,8 @@
 import pygame
+import time
+
+pygame.mixer.init()
+move_sound = pygame.mixer.Sound("./resources/sounds/piece-move.wav")
 
 def mouse_board_coords(window, border, n, pos_m):
     width, height = window.get_rect().size
@@ -19,6 +23,8 @@ def get_selected_piece(window, board, border, n, valid):
     return None, [[], []], bcoords
 
 def move_piece(board, piece, moves, bcoords):
+    global move_sound
+    sound = move_sound
     captures = moves[1]
     for i in range(len(moves[0])):
         move = moves[0][i]
@@ -28,7 +34,7 @@ def move_piece(board, piece, moves, bcoords):
             if len(captures) > 0:
                 capture = captures[i]
             next_moves = board.make_move(piece, move, capture)
-
+            sound.play()
             if len(next_moves[1]) == 0:
                 board.change_turn()
                 return None, [[], []], capture, 1

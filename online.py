@@ -6,6 +6,24 @@ import signal
 import select
 import argparse
 
+game = None
+stop = False
+s = None
+
+def stop_game():
+    global game
+    if game != None:
+        print("Stopping game")
+        game.running = False
+        game = None
+
+def stop_socket():
+    global s
+    global stop
+    if s != None:
+        stop = True
+        s = None
+
 def valid_ip(ip):
     def isIPv4(s):
         try: 
@@ -18,9 +36,7 @@ def valid_ip(ip):
 
     return False
 
-def read_thread(cli, uid):
-    global game
-    global player
+def read_thread(cli, uid, game):
     while True:
         try:
             data, _, _ = select.select([cli], [], [])
@@ -30,7 +46,7 @@ def read_thread(cli, uid):
                 if d == "ready":
                     game.opp_ready = True
                 elif d == "goodbye":
-                    print("Killing player", uid, "game thread")
+                    print("Killing player", uid, "thread")
                     game.running = False
                     break
                 else:
@@ -51,17 +67,70 @@ def read_thread(cli, uid):
 
                     game.board.make_move(piece, game.board.reflect_move(coords), capture)
 
-                    if int(d[0]) == player:
+                    if int(d[0]) == uid:
                         game.board.change_turn()
         except:
-            print("Killing player", uid, "game thread")
+            print("Killing player", uid, "thread")
             break
 
+def host_server(ip, port):
+    global game
+    global s
+    global stop
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+    print(f"Running server at {ip}:{port}")
+    s.bind((ip, port))
+    s.setblocking(True)
+    s.settimeout(1.0)
+    while True:
+        try:
+            s.listen()
+            cli, addr = s.accept()
+            print(f"Connection established by {addr[0]}:{addr[1]}")
+
+            player = 0
+            print("Starting player", player, "thread")
+
+            game = Game(name=f"Checkers (player {player+1})")
+            t = threading.Thread(target=read_thread, args=(cli, player, game, ))
+            t.start()
+            
+            game.play_online(0, cli)
+            break
+        except socket.timeout:
+            if stop:
+                stop = False
+                break
+            else:
+                continue
+        except:
+            break
+
+    game = None
+    s = None
+
+def connect_to_server(ip, port):
+    global game
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    print(f"Connecting to server at {ip}:{port}")
+    s.connect((ip, port))
+
+    player = 1
+    print("Starting player", player, "thread")
+
+    game = Game(name=f"Checkers (player {player+1})", reflect=True)
+    t = threading.Thread(target=read_thread, args=(s, player, game, ))
+    t.start()
+
+    game.play_online(1, s)
+    game = None
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Host or join a checkers game.")
 
-    parser.add_argument("connectype", choices=["host", "cli"], default=None, help="determines whether to host or join a game")
+    parser.add_argument("connectype", choices=["host", "join"], default=None, help="determines whether to host or join a game")
     parser.add_argument("--ip", help="IP address to host/connect")
     parser.add_argument("--port", type=int, help="port to host/connect")
     
@@ -92,7 +161,7 @@ if __name__ == "__main__":
 
             player = 0
             t = threading.Thread(target=read_thread, args=(cli, player, ))
-            print("Starting player", player, "game thread")
+            print("Starting player", player, "thread")
             t.start()
 
             game = Game(name=f"Checkers (player {player+1})")
@@ -100,7 +169,7 @@ if __name__ == "__main__":
 
             break
             
-    elif args.connectype == "cli":
+    elif args.connectype == "join":
         if args.ip != None and valid_ip(args.ip):
             HOST = args.ip
             
@@ -113,7 +182,7 @@ if __name__ == "__main__":
 
         player = 1
         t = threading.Thread(target=read_thread, args=(s, player, ))
-        print("Starting player", player, "game thread")
+        print("Starting player", player, "thread")
         t.start()
 
         game = Game(name=f"Checkers (player {player+1})", reflect=True)

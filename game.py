@@ -24,8 +24,6 @@ class Game(object):
 
     def make_board(self):
         self.board.initialize(self.n)
-        # self.board.import_game("./gamestate2.txt")
-        # self.board.turn = 1
         if self.reflect:
             self.board.reflect()
 
@@ -128,7 +126,6 @@ class Game(object):
             self.canvas.screen.fill((0, 0, 0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    opp.sendall(b"goodbye")
                     self.running = False
                 elif event.type == pygame.MOUSEBUTTONUP:
                     piece, moves, coords = get_selected_piece(self.canvas.screen, self.board, self.border, self.n, valid)
@@ -167,9 +164,15 @@ class Game(object):
 
             self.canvas.update()
 
+        opp.sendall(b"goodbye")
         pygame.quit()
 
     def game_over(self, player=None, opp=None):
+        global options
+
+        p1color = options["p1king"]
+        p2color = options["p2king"]
+
         self.opp_ready = False
         self.running = True
         button_area = (0, 0, 0, 0)
@@ -206,9 +209,9 @@ class Game(object):
             fontsize = int(75 * height / self.height)
             titlefont = pygame.font.SysFont("Comic Sans MS", fontsize)
             if self.board.state() == 0:
-                textsurface = titlefont.render(f"Player {self.board.state() + 1} wins!!", False, (255, 0, 0))
+                textsurface = titlefont.render(f"Player {self.board.state() + 1} wins!!", False, p1color)
             else:
-                textsurface = titlefont.render(f"Player {self.board.state() + 1} wins!!", False, (0, 0, 0))
+                textsurface = titlefont.render(f"Player {self.board.state() + 1} wins!!", False, p2color)
             twidth, _ = textsurface.get_rect().size
             x = width / 2 - (twidth / 2)
             screen.blit(textsurface, (x, self.border))

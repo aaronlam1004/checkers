@@ -7,3 +7,4 @@ host.py
 client.py
 main.py
 requirements.txt
+settings.json
