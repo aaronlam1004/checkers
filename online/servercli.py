@@ -1,10 +1,14 @@
+import os
+import sys
 import socket
-from game import *
 import random
 import threading
 import signal
 import select
 import argparse
+
+sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
+from checkers import Checkers
 
 game = None
 stop = False
@@ -92,7 +96,7 @@ def host_server(ip, port):
             player = 0
             print("Starting player", player, "thread")
 
-            game = Game(name=f"Checkers (player {player+1})")
+            game = Checkers(name=f"Checkers (player {player+1})")
             t = threading.Thread(target=read_thread, args=(cli, player, game, ))
             t.start()
             
@@ -120,7 +124,7 @@ def connect_to_server(ip, port):
     player = 1
     print("Starting player", player, "thread")
 
-    game = Game(name=f"Checkers (player {player+1})", reflect=True)
+    game = Checkers(name=f"Checkers (player {player+1})", reflect=True)
     t = threading.Thread(target=read_thread, args=(s, player, game, ))
     t.start()
 
@@ -160,13 +164,13 @@ if __name__ == "__main__":
             print(f"Connection established by {addr[0]}:{addr[1]}")
 
             player = 0
-            t = threading.Thread(target=read_thread, args=(cli, player, ))
+            game = Checkers(name=f"Checkers (player {player+1})")
+            
+            t = threading.Thread(target=read_thread, args=(cli, player, game, ))
             print("Starting player", player, "thread")
             t.start()
-
-            game = Game(name=f"Checkers (player {player+1})")
+            
             game.play_online(0, cli)
-
             break
             
     elif args.connectype == "join":
@@ -181,9 +185,11 @@ if __name__ == "__main__":
         s.connect((HOST, PORT))
 
         player = 1
-        t = threading.Thread(target=read_thread, args=(s, player, ))
+        game = Checkers(name=f"Checkers (player {player+1})", reflect=True)
+        
+        t = threading.Thread(target=read_thread, args=(s, player, game ))
         print("Starting player", player, "thread")
         t.start()
 
-        game = Game(name=f"Checkers (player {player+1})", reflect=True)
         game.play_online(1, s)
+        

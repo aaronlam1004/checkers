@@ -3,14 +3,21 @@ import os, sys, signal
 import tkinter
 import tkinter.font
 
-from online import *
+sys.path.append(os.path.dirname(__file__))
+from servercli import *
 
 exited = False
 t = None
 
+root = None
+status_label = None
+buttons = []
+entries = []
+
 def game_thread(name, ip, port):
     global t
     global exited
+    global buttons
     print(f"Running GUI {name} thread")
     try:
         if name == "host":
@@ -29,7 +36,6 @@ def game_thread(name, ip, port):
         print(f"Ending GUI {name} thread")
         t = None
     except:
-        print("Errror")
         if not exited:
             if name == "host":
                 buttons[0].config(text="Host", command=lambda: create_game(ent))
@@ -43,7 +49,7 @@ def game_thread(name, ip, port):
         t = None
 
 def send_kill():
-    global exited
+    global exited, root
     if t is not None:
         stop_game()
         stop_socket()
@@ -101,15 +107,16 @@ def set_entries(root):
 
     return entries
 
-if __name__ == "__main__":
-    root = tkinter.Tk()
+def main(tk_root):
+    global exited
+    global root, status_label, buttons, entries
+    root = tk_root
     root.title("Checkers Online Play")
     fontstyle = tkinter.font.Font(family="Lucida Grande", size=15)
     tkinter.Label(root, text="Checkers Online Play", font=fontstyle).pack()
 
     ent = set_entries(root)
 
-    buttons = []
     buttons.append(tkinter.Button(root, text="Host", command=lambda: create_game(ent)))
     buttons.append(tkinter.Button(root, text="Join", command=lambda: join_game(ent)))
 
@@ -123,3 +130,7 @@ if __name__ == "__main__":
     root.geometry("300x300")
     root.protocol("WM_DELETE_WINDOW", send_kill)
     root.mainloop()
+
+if __name__ == "__main__":
+    root = tkinter.Tk()
+    main(root)

@@ -1,5 +1,10 @@
-import pygame
+import os
 import json
+import pygame
+
+SETTINGS_JSON = os.path.join(os.path.dirname(__file__), "settings.json")
+
+options = {}
 
 def html_to_rgb(color):
     r = int(color[1:3], 16)
@@ -124,20 +129,25 @@ def draw_button(window, text, font, fontcolor, loc, size, buttoncolor):
     h = height - bh
     window.blit(buttontext, (x + (w / 2), y + (h / 2)))
 
-try:
-    with open("./settings.json") as infile:
-        options = json.load(infile)
-except:
-    options = {
-        "bwhite": (227, 182, 84),
-        "bblack": (179, 142, 64),
-        "p1bg": (235, 106, 106),
-        "p1fg": (186, 63, 52),
-        "p1king": (140, 14, 0),
-        "p1image": "./resources/king.png",
-        "p2bg": (61, 60, 56),
-        "p2fg": (43, 42, 40),
-        "p2king": (0, 0, 0),
-        "p2image": "./resources/king.png",
-        "turn": (255, 255, 0)
-    }
+
+def load_graphics_settings():
+    global options
+    try:
+        with open(SETTINGS_JSON) as infile:
+            options = json.load(infile)
+    except:
+        options = {
+            "bwhite": (227, 182, 84),
+            "bblack": (179, 142, 64),
+            "p1bg": (235, 106, 106),
+            "p1fg": (186, 63, 52),
+            "p1king": (140, 14, 0),
+            "p1image": "./resources/king.png",
+            "p2bg": (61, 60, 56),
+            "p2fg": (43, 42, 40),
+            "p2king": (0, 0, 0),
+            "p2image": "./resources/king.png",
+            "turn": (255, 255, 0)
+        }
+
+load_graphics_settings()

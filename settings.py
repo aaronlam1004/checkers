@@ -4,6 +4,9 @@ from tkinter import colorchooser, filedialog, messagebox
 from PIL import Image, ImageTk
 import json
 import os
+from graphics import *
+
+SETTINGS_JSON = os.path.join(os.path.dirname(__file__), "settings.json")
 
 def choose_color(widget):
     color_code = colorchooser.askcolor(title="Color")
@@ -22,9 +25,10 @@ def create_settings(widgets, keys):
         else:
             settings[k] = widgets[i]["text"]
         i += 1
-    with open("./settings.json", 'w') as outfile:
+    with open(SETTINGS_JSON, 'w') as outfile:
         json.dump(settings, outfile)
-    messagebox.showinfo(title="Settings file written", message="Settings file has been successfully written")
+    messagebox.showinfo(title="Settings file written", message="Settings file has been sucessfully written")
+    load_graphics_settings()
 
 def select_image(widget):
     valid_files = [
@@ -43,22 +47,21 @@ def select_image(widget):
         widget.config(image=king, text=file.name)
         widget.photo = king
 
-def reset_options(opt):
-    global root
+def reset_options(root, opt):
     try:
-        os.remove("./settings.json")
+        os.remove(SETTINGS_JSON)
     except:
         pass
     messagebox.showinfo(title="Settings file reset", message="Settings file has been successfully reset")
     root.destroy()
     root.__init__()
-    main()
+    main(root)
 
-def main():
-    global root
+def main(root):
+    load_graphics_settings()
     root.title("Checkers Settings")
     try:
-        with open("./settings.json", 'r') as settings:
+        with open(SETTINGS_JSON, 'r') as settings:
             options = json.load(settings)
     except:
         options = {
@@ -109,7 +112,7 @@ def main():
                 i += 1
             break
         except:
-            os.remove("./settings.json")
+            os.remove(SETTINGS_JSON)
             options = {
                 "bwhite": rgb_to_html((227, 182, 84)),
                 "bblack": rgb_to_html((179, 142, 64)),
@@ -126,7 +129,7 @@ def main():
             
     create_button = tkinter.Button(root, text="Write settings file", command=lambda a=modifiers, b=options.keys(): create_settings(a, b))
     create_button.grid(row=i+2, column=2)
-    reset_button = tkinter.Button(root, text="Reset to default", command=lambda a=options: reset_options(options), bg="#FF3333")
+    reset_button = tkinter.Button(root, text="Reset to default", command=lambda a=root, b=options: reset_options(a, b), bg="#FF3333")
     reset_button.grid(row=i+3, column=1)
 
     root.geometry("500x550")
@@ -134,4 +137,4 @@ def main():
 
 if __name__ == "__main__":
     root = tkinter.Tk()
-    main()
+    main(root)
