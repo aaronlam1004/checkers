@@ -6,68 +6,79 @@ class StandardBoard(Board):
         super().__init__(size=8)
 
     # @override
-    def get_piece_captures(self, piece: Piece):
+    def get_piece_capture_moves(self, piece: Piece):
         row = piece.row
         col = piece.col
-
         moves = []
-        captures = []
+        can_capture = 0
         if piece.is_king or piece.player == PlayerId.ONE:
             if self.check_in_bounds(row - 1, col - 1) and self.board[row - 1][col - 1] != -1:
-                if self.check_in_bounds(row - 2, col - 2) and self.board[row - 2][col - 2] == -1:
-                    captures.append(self.board[row - 1][col - 1])
-                    moves.append((row - 2, col - 2))
+                neighbor_piece = self.board[row - 1][col - 1]
+                if neighbor_piece.player != piece.player:
+                    if self.check_in_bounds(row - 2, col - 2) and self.board[row - 2][col - 2] == -1:
+                        moves.append(((row - 2, col - 2), neighbor_piece))
+                        can_capture = True
             if self.check_in_bounds(row - 1, col + 1) and self.board[row - 1][col + 1] != -1:
-                if self.check_in_bounds(row - 2, col + 2) and self.board[row - 2][col + 2] == -1:
-                    captures.append(self.board[row - 1][col + 1])
-                    moves.append((row - 2, col + 2))
+                neighbor_piece = self.board[row - 1][col + 1]
+                if neighbor_piece.player != piece.player:
+                    if self.check_in_bounds(row - 2, col + 2) and self.board[row - 2][col + 2] == -1:
+                        moves.append(((row - 2, col + 2), neighbor_piece))
+                        can_capture = True
         if piece.is_king or piece.player == PlayerId.TWO:
             if self.check_in_bounds(row + 1, col - 1) and self.board[row + 1][col - 1] != -1:
-                if self.check_in_bounds(row + 2, col - 2) and self.board[row + 2][col - 2] == -1:
-                    captures.append(self.board[row + 1][col - 1])
-                    moves.append((row + 2, col - 2))
+                neighbor_piece = self.board[row + 1][col - 1]
+                if neighbor_piece.player != piece.player:
+                    if self.check_in_bounds(row + 2, col - 2) and self.board[row + 2][col - 2] == -1:
+                        moves.append(((row + 2, col - 2), neighbor_piece))
+                        can_capture = True
             if self.check_in_bounds(row + 1, col + 1) and self.board[row + 1][col + 1] != -1:
-                if self.check_in_bounds(row + 2, col + 2) and self.board[row + 2][col + 2] == -1:
-                    captures.append(self.board[row + 1][col + 1])
-                    moves.append((row + 2, col + 2))
-        return moves, captures
+                neighbor_piece = self.board[row + 1][col + 1]
+                if neighbor_piece.player != piece.player:                
+                    if self.check_in_bounds(row + 2, col + 2) and self.board[row + 2][col + 2] == -1:
+                        moves.append(((row + 2, col + 2), neighbor_piece))
+                        can_capture = True
+        return moves, can_capture
 
     # @override
     def get_piece_moves(self, piece: Piece):
-        moves, captures = self.get_piece_captures()
-        if len(moves) == 0:
-            if piece.is_king or piece.player == PlayerId.ONE:
-                if self.check_in_bounds(row - 1, col - 1) and self.board[row - 1][col - 1] == -1:
-                    moves.append((row - 1, col - 1))
-                if self.check_in_bounds(row - 1, col + 1) and self.board[row - 1][col + 1] == -1:
-                    moves.append((row - 1, col + 1))
-            if piece.is_king or piece.player == PlayerId.TWO:
-                if self.check_in_bounds(row + 1, col - 1) and self.board[row + 1][col - 1] != -1:
-                    moves.append((row + 1, col - 1))
-                if self.check_in_bounds(row + 1, col + 1) and self.board[row + 1][col + 1] != -1:
-                    moves.append((row + 1, col + 1))
-        return moves, captures
+        moves = []
+        can_capture = False
+        row = piece.row
+        col = piece.col
+        if row != -1 or col != -1:
+            moves, can_capture = self.get_piece_capture_moves(piece)
+            if len(moves) == 0:
+                if piece.is_king or piece.player == PlayerId.ONE:
+                    if self.check_in_bounds(row - 1, col - 1) and self.board[row - 1][col - 1] == -1:
+                        moves.append(((row - 1, col - 1), None))
+                    if self.check_in_bounds(row - 1, col + 1) and self.board[row - 1][col + 1] == -1:
+                        moves.append(((row - 1, col + 1), None))
+                if piece.is_king or piece.player == PlayerId.TWO:
+                    if self.check_in_bounds(row + 1, col - 1) and self.board[row + 1][col - 1] == -1:
+                        moves.append(((row + 1, col - 1), None))
+                    if self.check_in_bounds(row + 1, col + 1) and self.board[row + 1][col + 1] == -1:
+                        moves.append(((row + 1, col + 1), None))
+        return moves, can_capture
 
     # @override
     def get_all_moves(self):
-        can_capture = False
-        all_moves = []
-        all_captures = []
+        has_capture_move = False
+        move_dict = {}
+        print("TURN", self.turn)
         player = self.players[self.turn]
         for piece in player.pieces:
-            if piece.row != -1 or piece.col != -1:
-                moves, captures = self.get_piece_moves(piece)
-                if len(captures) > 0:
-                    if not can_capture:
-                        all_moves = []
-                        all_captures = []
-                    all_moves += moves
-                    all_captures += captures
-                    can_capture = True
-                elif not can_capture:
-                    all_moves += moves
-                    all_captures += captures
-        return all_moves, all_captures
+            moves, can_capture = self.get_piece_moves(piece)
+            piece_hash = (piece.row, piece.col)
+
+            # TODO: add not force capture
+            if can_capture:
+                if not has_capture_move:
+                    move_dict = {}
+                    has_capture_move = True
+                move_dict[piece_hash] = { move[0]: move[1] for move in moves }
+            elif not has_capture_move and len(moves) > 0:
+                move_dict[piece_hash] = { move[0]: move[1] for move in moves }
+        return move_dict
                 
 
 # class StandardBoard(Board):

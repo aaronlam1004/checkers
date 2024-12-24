@@ -73,13 +73,12 @@ class Board:
             return BoardState.BLACK_WIN
         return BoardState.NEUTRAL
 
-    def check_in_bounds(self, coord: Tuple[int, int]):
+    def check_in_bounds(self, row: int, col: int):
         """
         """
-        row, col = coord
         return row >= 0 and row < self.size and col >= 0 and col < self.size
 
-    def check_on_edge(self, coord: Tuple[int, int]):
+    def check_on_edge(self, row: int, col: int):
         """
         """
         if self.turn == PlayerId.ONE:
@@ -87,32 +86,32 @@ class Board:
         else:
             return row == 0
 
-    def find_piece(self, coord: Tuple[int, int]):
+    def find_piece(self, row: int, col: int):
         """
         """
-        row, col = coord
         if self.check_in_bounds(row, col):
-            return self.board[row, col]
+            return self.board[row][col]
         return -1
 
-    def get_piece_captures(self, piece: Piece):
+    def get_piece_capture_moves(self, piece: Piece):
         """
         """
-        pass
+        return [], False
     
     def get_piece_moves(self, piece: Piece):
         """
         """
-        pass
+        return [], False
 
     def get_all_moves(self):
         """
         """
-        pass
+        return {}
 
     def move(self, piece: Piece, coord: Tuple[int, int], capture: Optional[Piece] = None):
         """
         """
+        change_turn = True
         row, col = coord
         if self.check_in_bounds(row, col):
             self.board[piece.row][piece.col] = -1
@@ -121,12 +120,15 @@ class Board:
             piece.col = col
             if self.check_on_edge(row, col):
                 piece.is_king = True
-            if len(captures) > 0:
-                piece.captured += 1
-                capture.row = -1
-                capture.col = -1
+            if capture is not None:
+                self.players[self.turn].captured += 1
                 self.board[capture.row][capture.col] = -1
-            else:
+                capture.row = -1
+                capture.col = -1                
+                _, can_capture = self.get_piece_capture_moves(piece)
+                if can_capture:
+                   change_turn = False
+            if change_turn:
                 self.turn = PlayerId.TWO if self.turn == PlayerId.ONE else PlayerId.ONE
         
 
