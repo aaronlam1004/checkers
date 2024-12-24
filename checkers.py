@@ -43,7 +43,7 @@ class Checkers(object):
         self.ready = False
 
     def make_board(self):
-        self.board.initialize(self.n)
+        self.board.setup()
         if self.reflect:
             self.board.reflect()
 
