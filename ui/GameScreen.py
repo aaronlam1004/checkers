@@ -33,7 +33,7 @@ class GameScreen:
 
     def handle_select_piece_event(self):
         row, col = self.get_mouse_board_position()
-        moves_dict = self.board.get_all_moves()
+        moves_dict = self.board.moves_dict
         print(moves_dict)
         if (row, col) in moves_dict:
             self.selected_piece = self.board.find_piece(row, col)
@@ -43,13 +43,17 @@ class GameScreen:
             self.selected_moves = {}
 
     def handle_move_piece_event(self):
+        current_turn = self.board.turn
         if self.selected_piece is not None and len(self.selected_moves) > 0:
             row, col = self.get_mouse_board_position()
             if (row, col) in self.selected_moves:
                 captured_piece = self.selected_moves[(row, col)]
                 self.board.move(self.selected_piece, (row, col), captured_piece)
-                self.selected_piece = None
-                self.selected_moves = {}
+                if current_turn != self.board.turn:
+                    self.selected_piece = None
+                    self.selected_moves = {}
+                else:
+                    self.selected_moves = self.board.moves_dict
 
     def handle_events(self):
         # TODO
@@ -70,21 +74,29 @@ class GameScreen:
         self.draw_pieces(self.board.players[PlayerId.TWO],  scalars, reverse)
 
     def draw_board(self, scalars: Tuple[float, float]):
-        color_white = (227, 182, 84)
-        color_black = (179, 142, 64)
-        color_move = (255, 0, 0)
+        # color_white = (227, 182, 84)
+        color_white = (236, 236, 208)
+        # color_black = (179, 142, 64)
+        color_black = (114, 149, 81)
+        color_move = (110, 110, 110)
+        color_selected_piece = (255, 235, 59)
         x = 0
         y = 0
         scalar_x, scalar_y = scalars
         for row in range(self.board.size):
             for col in range(self.board.size):
                 square_color = color_black
-                if (row, col) in self.selected_moves:
-                    square_color = color_move
+                if self.selected_piece and row == self.selected_piece.row and col == self.selected_piece.col:
+                    square_color = color_selected_piece
                 elif (row + col) % 2 == 0:
                     square_color = color_white
 
                 pygame.draw.rect(self.screen, square_color, (x, y, scalar_x, scalar_y))
+                if (row, col) in self.selected_moves:
+                    pygame.draw.rect(self.screen, square_color, (x, y, scalar_x, scalar_y))
+                    move_x = x + (scalar_x / 4)
+                    move_y = y + (scalar_y / 4)
+                    pygame.draw.ellipse(self.screen, color_move, (move_x, move_y, scalar_x / 2, scalar_y / 2))
                 x += scalar_x
             x = 0
             y += scalar_y
@@ -96,7 +108,7 @@ class GameScreen:
         else:
             color_player_bg = (61, 60, 56)
             color_player_fg = (43, 42, 40)
-        color_player_highlight = (255, 0, 0)
+        color_player_highlight = (0, 0, 0)
             
         scalar_x, scalar_y = scalars
         for piece in player.pieces:
@@ -110,10 +122,9 @@ class GameScreen:
                 # TODO: draw king
                 pass
 
-            if piece == self.selected_piece:
-                self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 5, color_player_highlight)
-            self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 10, color_player_bg)
-            self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 20, color_player_fg)
+            self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 12, color_player_highlight)
+            self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 20, color_player_bg)
+            self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 30, color_player_fg)
 
     def draw_piece(self, screen: Surface, x: float, y: float, width: float, height: float, margin: float, color: Tuple[int, int, int]):
         x += (margin / 2)
