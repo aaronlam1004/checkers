@@ -3,11 +3,15 @@ from board.Board import *
 
 class StandardBoard(Board):
     def __init__(self, force_capture: bool = False):
+        """
+        """
         self.force_capture = force_capture
         super().__init__(size=8)
 
     # @override
     def get_piece_capture_moves(self, piece: Piece):
+        """
+        """
         row = piece.row
         col = piece.col
         moves = {}
@@ -42,6 +46,8 @@ class StandardBoard(Board):
 
     # @override
     def get_piece_moves(self, piece: Piece):
+        """
+        """
         moves = {}
         can_capture = False
         row = piece.row
@@ -63,6 +69,8 @@ class StandardBoard(Board):
 
     # @override
     def get_all_moves(self):
+        """
+        """
         capture = False
         move_dict = {}
         print("TURN", self.turn)

@@ -8,7 +8,7 @@ from board.Board import *
 from board.StandardBoard import StandardBoard
 
 NAME = "Checkers"
-LENGTH = 600
+LENGTH = 800
 BORDER = 20
 
 class Canvas(object):

@@ -7,12 +7,13 @@ from pygame.surface import Surface
 from board.Board import Board, Player, PlayerId
 
 class GameScreen:
-    def __init__(self, screen: Surface, board: Board, resolution: Tuple[int, int]):
+    def __init__(self, screen: Surface, board: Board, dimensions: Tuple[int, int], offset: Tuple[int, int]):
         # TODO: default options
         self.options = {}
         self.screen = screen
         self.board = board
-        self.resolution = resolution
+        self.dimensions = dimensions
+        self.offset = offset
         
         self.available_pieces = []
         self.selected_piece = None
@@ -26,9 +27,10 @@ class GameScreen:
 
     def get_mouse_board_position(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
-        width, height = self.screen.get_rect().size
-        row = mouse_y // (width // self.board.size)
-        col = mouse_x // (height // self.board.size)
+        width, height = self.dimensions
+        offset_x, offset_y = self.offset
+        row = (mouse_y - offset_y) // (height // self.board.size)
+        col = (mouse_x - offset_x) // (width // self.board.size)
         return (row, col)
 
     def handle_select_piece_event(self):
@@ -67,7 +69,7 @@ class GameScreen:
                 self.handle_select_piece_event()
 
     def draw_game(self, reverse: bool = False):
-        width, height = self.resolution
+        width, height = self.dimensions
         scalars = (width / self.board.size, height / self.board.size)
         self.draw_board(scalars)
         self.draw_pieces(self.board.players[PlayerId.ONE],  scalars, reverse)
@@ -80,9 +82,11 @@ class GameScreen:
         color_black = (114, 149, 81)
         color_move = (110, 110, 110)
         color_selected_piece = (255, 235, 59)
-        x = 0
-        y = 0
+
+        x, y = self.offset
+        offset_x, offset_y = self.offset
         scalar_x, scalar_y = scalars
+        
         for row in range(self.board.size):
             for col in range(self.board.size):
                 square_color = color_black
@@ -98,7 +102,7 @@ class GameScreen:
                     move_y = y + (scalar_y / 4)
                     pygame.draw.ellipse(self.screen, color_move, (move_x, move_y, scalar_x / 2, scalar_y / 2))
                 x += scalar_x
-            x = 0
+            x = offset_x
             y += scalar_y
             
     def draw_pieces(self, player: Player, scalars: Tuple[float, float], reverse: bool = False):
@@ -109,24 +113,27 @@ class GameScreen:
             color_player_bg = (61, 60, 56)
             color_player_fg = (43, 42, 40)
         color_player_highlight = (0, 0, 0)
-            
+
+        offset_x, offset_y = self.offset
         scalar_x, scalar_y = scalars
         for piece in player.pieces:
-            if not reverse:
-                x = piece.col
-                y = piece.row
-            else:
-                x = (self.board.size - 1) - piece.col
-                y = (self.board.size - 1) - piece.row
-            if piece.is_king:
-                # TODO: draw king
-                pass
+            if piece.row != -1 or piece.col != -1:
+                if not reverse:
+                    x = piece.col
+                    y = piece.row
+                else:
+                    x = (self.board.size - 1) - piece.col
+                    y = (self.board.size - 1) - piece.row
 
-            self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 12, color_player_highlight)
-            self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 20, color_player_bg)
-            self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 30, color_player_fg)
+                self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 12, color_player_highlight)
+                self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 20, color_player_bg)
+                self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 30, color_player_fg)
+                if piece.is_king:
+                    # TODO: draw king
+                    pass
 
     def draw_piece(self, screen: Surface, x: float, y: float, width: float, height: float, margin: float, color: Tuple[int, int, int]):
-        x += (margin / 2)
-        y += (margin / 2)
+        offset_x, offset_y = self.offset
+        x += (margin / 2) + offset_x
+        y += (margin / 2) + offset_y
         pygame.draw.ellipse(self.screen, color, (x, y, width - margin, height - margin))
