@@ -2,7 +2,8 @@ from typing import List, Tuple
 from board.Board import *
 
 class StandardBoard(Board):
-    def __init__(self):
+    def __init__(self, force_capture: bool = False):
+        self.force_capture = force_capture
         super().__init__(size=8)
 
     # @override
@@ -62,7 +63,7 @@ class StandardBoard(Board):
 
     # @override
     def get_all_moves(self):
-        has_capture_move = False
+        capture = False
         move_dict = {}
         print("TURN", self.turn)
         player = self.players[self.turn]
@@ -71,11 +72,14 @@ class StandardBoard(Board):
             piece_hash = (piece.row, piece.col)
 
             # TODO: add not force capture
-            if can_capture:
-                if not has_capture_move:
-                    move_dict = {}
-                    has_capture_move = True
-                move_dict[piece_hash] = moves
-            elif not has_capture_move and len(moves) > 0:
+            if self.force_capture:
+                if can_capture:
+                    if not capture:
+                        move_dict = {}
+                        can_capture_flag= True
+                    move_dict[piece_hash] = moves
+                elif not capture and len(moves) > 0:
+                    move_dict[piece_hash] = moves
+            else:
                 move_dict[piece_hash] = moves
         return move_dict
