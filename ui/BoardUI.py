@@ -5,8 +5,10 @@ import pygame
 from pygame.surface import Surface
 
 from board.Board import Board, Player, PlayerId
+from ui.AudioPlayer import AudioPlayer
+from ui.EventHandler import Signals
 
-class GameScreen:
+class BoardUI:
     def __init__(self, screen: Surface, board: Board, dimensions: Tuple[int, int], offset: Tuple[int, int]):
         # TODO: default options
         self.options = {}
@@ -21,9 +23,8 @@ class GameScreen:
         
     # TODO: load options
 
-    def update(self, reverse: bool = False):
-        self.handle_events()
-        self.draw_game(reverse)
+    def update(self):
+        self.draw_game()
 
     def get_mouse_board_position(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -51,29 +52,27 @@ class GameScreen:
             if (row, col) in self.selected_moves:
                 captured_piece = self.selected_moves[(row, col)]
                 self.board.move(self.selected_piece, (row, col), captured_piece)
+                AudioPlayer.play_piece_move()
                 if current_turn != self.board.turn:
                     self.selected_piece = None
                     self.selected_moves = {}
                 else:
                     self.selected_moves = self.board.moves_dict
 
-    def handle_events(self):
+    def handle_event(self, event):
         # TODO
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                print("QUIT")
-                pygame.quit()
-            if event.type == pygame.MOUSEBUTTONUP:
-                print("MOUSE UP")
-                self.handle_move_piece_event()                
-                self.handle_select_piece_event()
+        if event.type == pygame.MOUSEBUTTONUP:
+            print("MOUSE UP")
+            self.handle_move_piece_event()                
+            self.handle_select_piece_event()
+        return Signals.NONE
 
-    def draw_game(self, reverse: bool = False):
+    def draw(self):
         width, height = self.dimensions
         scalars = (width / self.board.size, height / self.board.size)
         self.draw_board(scalars)
-        self.draw_pieces(self.board.players[PlayerId.ONE],  scalars, reverse)
-        self.draw_pieces(self.board.players[PlayerId.TWO],  scalars, reverse)
+        self.draw_pieces(self.board.players[PlayerId.ONE], scalars)
+        self.draw_pieces(self.board.players[PlayerId.TWO], scalars)
 
     def draw_board(self, scalars: Tuple[float, float]):
         # color_white = (227, 182, 84)
@@ -105,7 +104,7 @@ class GameScreen:
             x = offset_x
             y += scalar_y
             
-    def draw_pieces(self, player: Player, scalars: Tuple[float, float], reverse: bool = False):
+    def draw_pieces(self, player: Player, scalars: Tuple[float, float]):
         if player.id == PlayerId.ONE:
             color_player_bg = (235, 106, 106)
             color_player_fg = (186, 63, 52)
@@ -118,13 +117,8 @@ class GameScreen:
         scalar_x, scalar_y = scalars
         for piece in player.pieces:
             if piece.row != -1 or piece.col != -1:
-                if not reverse:
-                    x = piece.col
-                    y = piece.row
-                else:
-                    x = (self.board.size - 1) - piece.col
-                    y = (self.board.size - 1) - piece.row
-
+                x = piece.col
+                y = piece.row
                 self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 12, color_player_highlight)
                 self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 20, color_player_bg)
                 self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 30, color_player_fg)

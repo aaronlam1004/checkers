@@ -54,7 +54,7 @@ class StandardBoard(Board):
         col = piece.col
         if row != -1 or col != -1:
             moves, can_capture = self.get_piece_capture_moves(piece)
-            if len(moves) == 0:
+            if not self.force_capture or (self.force_capture and not can_capture):
                 if piece.is_king or piece.player == PlayerId.ONE:
                     if self.check_in_bounds(row - 1, col - 1) and self.board[row - 1][col - 1] == -1:
                         moves[(row - 1, col - 1)] = None
@@ -71,22 +71,21 @@ class StandardBoard(Board):
     def get_all_moves(self):
         """
         """
-        capture = False
+        capture_move = False
         move_dict = {}
         print("TURN", self.turn)
         player = self.players[self.turn]
         for piece in player.pieces:
             moves, can_capture = self.get_piece_moves(piece)
             piece_hash = (piece.row, piece.col)
-
-            # TODO: add not force capture
+            
             if self.force_capture:
                 if can_capture:
-                    if not capture:
+                    if not capture_move:
                         move_dict = {}
-                        can_capture_flag= True
+                        capture_move= True
                     move_dict[piece_hash] = moves
-                elif not capture and len(moves) > 0:
+                elif not capture_move and len(moves) > 0:
                     move_dict[piece_hash] = moves
             else:
                 move_dict[piece_hash] = moves

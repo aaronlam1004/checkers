@@ -5,7 +5,7 @@ import pygame
 RESOURCE_PATH = os.path.join(os.path.dirname(__file__), "resources")
 
 pygame.mixer.init()
-move_sound = pygame.mixer.Sound(os.path.join(RESOURCE_PATH, "sounds/piece-move.wav"))
+move_sound = pygame.mixer.Sound(os.path.join(RESOURCE_PATH, "audio/piece-move.wav"))
 
 def mouse_board_coords(window, border, n, pos_m):
     width, height = window.get_rect().size
