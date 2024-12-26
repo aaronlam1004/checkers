@@ -81,7 +81,6 @@ class StandardBoard(Board):
         """
         capture_move = False
         move_dict = {}
-        print("TURN", self.turn)
         player = self.players[self.turn]
         for piece in player.pieces:
             moves, can_capture = self.get_piece_moves(piece)

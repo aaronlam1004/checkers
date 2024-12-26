@@ -23,9 +23,9 @@ class HomeScene(Scene):
         y = (self.height / 2) - (button_height / 2)
 
         play_button_colors = ButtonColors(
-            (255, 0, 0),
-            (0, 0, 0),
-            highlight=(0, 0, 255),
+            (235, 106, 106),
+            (43, 42, 40),
+            highlight=(186, 63, 52),
             border=(255, 255, 255),
             text_border=(255, 255, 255)
         )
@@ -33,9 +33,9 @@ class HomeScene(Scene):
         
         y += button_height + 10
         quit_button_colors = ButtonColors(
-            (255, 0, 0),
-            (0, 0, 0),
-            highlight=(0, 0, 255),
+            (235, 106, 106),
+            (43, 42, 40),
+            highlight=(186, 63, 52),
             border=(255, 255, 255),
             text_border=(255, 255, 255)
         )
@@ -69,7 +69,7 @@ class HomeScene(Scene):
         return Signals.NONE, None
 
     def draw(self):
-        self.screen.fill((40, 40, 40))
+        self.screen.fill((20, 20, 20))
         for button in self.buttons:
             button.draw()
         

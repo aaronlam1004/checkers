@@ -35,7 +35,7 @@ class Board:
         self.moves_dict = {}
         self.num_turns = 0
         self.blitz_mode = False
-        self.player_loss_timeout = 60
+        self.player_loss_timeout_s = 60
 
     def enable_blitz_mode(self):
         """
@@ -100,9 +100,9 @@ class Board:
         if player_two.captured == len(player_one.pieces):
             return BoardState.BLACK_WIN
         if self.blitz_mode:
-            if player_one.time_elapsed_s >= self.player_loss_timeout:
+            if player_one.time_elapsed_s >= self.player_loss_timeout_s:
                 return BoardState.BLACK_WIN
-            elif player_two.time_elapsed_s >= self.player_loss_timeout:
+            elif player_two.time_elapsed_s >= self.player_loss_timeout_s:
                 return BoardState.RED_WIN
         return BoardState.NEUTRAL
 
@@ -177,5 +177,4 @@ class Board:
                 now = time.time()
                 player.time_elapsed_s = player.time_elapsed_s + (now - self.timestamp)
                 self.timestamp = now
-                print(self.turn, player.time_elapsed_s)
                 

@@ -31,7 +31,8 @@ if __name__ == "__main__":
         elif signal_id == Signals.PLAY:
             board = StandardBoard()
             board.setup()
-            # board.enable_blitz_mode()
+            # board.set_size(10)
+            board.enable_blitz_mode()
             game_scene = GameScene(window.screen, board)
             EventHandler.set_scene(game_scene)
         

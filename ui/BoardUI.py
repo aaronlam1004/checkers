@@ -38,7 +38,6 @@ class BoardUI:
     def handle_select_piece_event(self):
         row, col = self.get_mouse_board_position()
         moves_dict = self.board.moves_dict
-        print(moves_dict)
         if (row, col) in moves_dict:
             self.selected_piece = self.board.find_piece(row, col)
             self.selected_moves = moves_dict[(row, col)]
@@ -61,7 +60,6 @@ class BoardUI:
                     self.selected_moves = self.board.moves_dict
 
     def handle_event(self, event):
-        # TODO
         if event.type == pygame.MOUSEBUTTONUP:
             self.handle_move_piece_event()                
             self.handle_select_piece_event()
@@ -75,11 +73,9 @@ class BoardUI:
         self.draw_pieces(self.board.players[PlayerId.TWO], scalars)
 
     def draw_board(self, scalars: Tuple[float, float]):
-        # color_white = (227, 182, 84)
         color_white = (236, 236, 208)
-        # color_black = (179, 142, 64)
         color_black = (114, 149, 81)
-        color_move = (110, 110, 110)
+        color_move = (77, 77, 77)
         color_selected_piece = (255, 235, 59)
 
         x, y = self.offset
