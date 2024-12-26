@@ -17,20 +17,22 @@ from ui.EventHandler import EventHandler, Signals
 
 if __name__ == "__main__":
     window = Window((800, 700), "Checkers")
-    board = StandardBoard()
-    board.setup()
-    
     home_scene = HomeScene(window.screen)
-    game_scene = GameScene(window.screen, board)
+    game_scene = None
+    # game_scene = GameScene(window.screen, board)
 
     EventHandler.set_scene(home_scene)
     
     while True:
         scene_id = EventHandler.scene.id
-        signal_id = EventHandler.handle_events()
+        signal_id, data = EventHandler.handle_events()
         if signal_id == Signals.QUIT:
             break
         elif signal_id == Signals.PLAY:
+            board = StandardBoard()
+            board.setup()
+            # board.enable_blitz_mode()
+            game_scene = GameScene(window.screen, board)
             EventHandler.set_scene(game_scene)
         
         if scene_id == SceneId.HOME:

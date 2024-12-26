@@ -19,12 +19,14 @@ class EventHandler:
     
     @staticmethod
     def handle_events():
+        event_data = None
         event_signal = Signals.NONE
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return Signals.QUIT
+                return Signals.QUIT, None
             if EventHandler.scene is not None:
-                signal_id = EventHandler.scene.handle_event(event)
+                signal_id, signal_data = EventHandler.scene.handle_event(event)
                 if signal_id != Signals.NONE:
                     event_signal = signal_id
-        return event_signal
+                    event_data = signal_data
+        return event_signal, event_data

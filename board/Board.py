@@ -1,3 +1,4 @@
+import time
 from typing import List, Tuple, Optional
 from enum import IntEnum
 from dataclasses import dataclass
@@ -14,6 +15,7 @@ class Player:
     id: int
     pieces: List[Piece]
     captured: int = 0
+    time_elapsed_s: int = 0
 
 class PlayerId(IntEnum):
     ONE = 0
@@ -26,15 +28,35 @@ class BoardState(IntEnum):
     BLACK_WIN =  2
 
 class Board:
-    def __init__(self, size: int):
+    def __init__(self):
         """
         """
-        self.size = size
+        self.size = 8
         self.moves_dict = {}
+        self.num_turns = 0
+        self.blitz_mode = False
+        self.player_loss_timeout = 60
+
+    def enable_blitz_mode(self):
+        """
+        """
+        if self.num_turns == 0:
+            self.blitz_mode = True
+
+    def disable_blitz_mode(self):
+        """
+        """
+        if self.num_turns == 0:
+            self.blitz_mode = False
+
+    def set_size(self, size: int):
+        self.size = size
+        self.setup()
 
     def setup(self):
         """
         """
+        self.num_turns = 0
         self.board = [[-1 for _ in range(self.size)] for _ in range(self.size)]
         self.load()
 
@@ -70,10 +92,18 @@ class Board:
         """
         if len(self.players) != 2:
             return BoardState.INVALID
-        if self.players[PlayerId.ONE].captured == len(self.players[PlayerId.TWO].pieces):
+
+        player_one = self.players[PlayerId.ONE]
+        player_two = self.players[PlayerId.TWO]
+        if player_one.captured == len(player_two.pieces):
             return BoardState.RED_WIN
-        if self.players[PlayerId.TWO].captured == len(self.players[PlayerId.ONE].pieces):
+        if player_two.captured == len(player_one.pieces):
             return BoardState.BLACK_WIN
+        if self.blitz_mode:
+            if player_one.time_elapsed_s >= self.player_loss_timeout:
+                return BoardState.BLACK_WIN
+            elif player_two.time_elapsed_s >= self.player_loss_timeout:
+                return BoardState.RED_WIN
         return BoardState.NEUTRAL
 
     def check_in_bounds(self, row: int, col: int):
@@ -131,9 +161,21 @@ class Board:
                 moves, can_capture = self.get_piece_capture_moves(piece)
                 if can_capture:
                    change_turn = False
-                   self.moves_dict = {
-                       (piece.row, piece.col): moves
-                   }
+                   self.moves_dict = { (piece.row, piece.col): moves }
             if change_turn:
                 self.turn = PlayerId.TWO if self.turn == PlayerId.ONE else PlayerId.ONE
                 self.moves_dict = self.get_all_moves()
+                self.timestamp = time.time()
+                self.num_turns += 1
+
+    def update(self):
+        """
+        """
+        if self.state() == BoardState.NEUTRAL:
+            if self.blitz_mode and self.num_turns > 0:
+                player = self.players[self.turn]
+                now = time.time()
+                player.time_elapsed_s = player.time_elapsed_s + (now - self.timestamp)
+                self.timestamp = now
+                print(self.turn, player.time_elapsed_s)
+                

@@ -2,11 +2,19 @@ from typing import List, Tuple
 from board.Board import *
 
 class StandardBoard(Board):
-    def __init__(self, force_capture: bool = False):
+    def __init__(self):
         """
         """
-        self.force_capture = force_capture
-        super().__init__(size=8)
+        self.force_capture = False
+        super().__init__()
+
+    def enable_force_capture(self):
+        if self.num_turns == 0:
+            self.force_capture = True
+
+    def disable_force_capture(self):
+        if self.num_turns == 0:
+            self.force_capture = False
 
     # @override
     def get_piece_capture_moves(self, piece: Piece):

@@ -4,6 +4,7 @@ from typing import List, Tuple
 import pygame
 from pygame.surface import Surface
 
+from Resources import *
 from board.Board import Board, Player, PlayerId
 from ui.AudioPlayer import AudioPlayer
 from ui.EventHandler import Signals
@@ -62,10 +63,9 @@ class BoardUI:
     def handle_event(self, event):
         # TODO
         if event.type == pygame.MOUSEBUTTONUP:
-            print("MOUSE UP")
             self.handle_move_piece_event()                
             self.handle_select_piece_event()
-        return Signals.NONE
+        return Signals.NONE, None
 
     def draw(self):
         width, height = self.dimensions
@@ -119,15 +119,29 @@ class BoardUI:
             if piece.row != -1 or piece.col != -1:
                 x = piece.col
                 y = piece.row
-                self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 12, color_player_highlight)
-                self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 20, color_player_bg)
-                self.draw_piece(self.screen, x * scalar_x, y * scalar_y, scalar_x, scalar_y, 30, color_player_fg)
+                self.draw_piece(x * scalar_x, y * scalar_y, scalar_x, scalar_y, 12, color_player_highlight)
+                self.draw_piece(x * scalar_x, y * scalar_y, scalar_x, scalar_y, 20, color_player_bg)
+                self.draw_piece(x * scalar_x, y * scalar_y, scalar_x, scalar_y, 30, color_player_fg)
                 if piece.is_king:
-                    # TODO: draw king
-                    pass
+                    self.draw_king(x * scalar_x, y * scalar_y, scalar_x, scalar_y, 30, color_player_bg)
 
-    def draw_piece(self, screen: Surface, x: float, y: float, width: float, height: float, margin: float, color: Tuple[int, int, int]):
+    def draw_piece(self, x: float, y: float, width: float, height: float, margin: float, color: Tuple[int, int, int]):
         offset_x, offset_y = self.offset
         x += (margin / 2) + offset_x
         y += (margin / 2) + offset_y
         pygame.draw.ellipse(self.screen, color, (x, y, width - margin, height - margin))
+
+    def draw_king(self, x: float, y: float, width: float, height: float, margin: float, color: Tuple[int, int, int]):
+        offset_x, offset_y = self.offset
+        x += (margin / 2) + offset_x
+        y += (margin / 2) + offset_y
+        king_img = pygame.image.load(Images.KING.value).convert_alpha()
+        king_img = pygame.transform.scale(king_img, (width / 1.75, height / 1.75))
+        king_width, king_height = king_img.get_size()
+        r, g, b = color
+        for row in range(king_width):
+            for col in range(king_height):
+                _, _, _, alpha = king_img.get_at((row, col))
+                king_img.set_at((row, col), pygame.Color(r, g, b, alpha))
+        king_rect = (x + 1, y - 1, king_width, king_height)
+        self.screen.blit(king_img, king_rect)
