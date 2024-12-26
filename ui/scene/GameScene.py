@@ -17,9 +17,7 @@ class GameScene(Scene):
         self.screen = screen
         self.width, self.height = screen.get_rect().size
         self.board = board
-        self.offset_x = 150
-        self.offset_y = 50
-        self.board_ui = BoardUI(self.screen, board, (600, 600), (self.offset_x, self.offset_y))
+        self.board_ui = BoardUI(self.screen, board, (600, 600), (100, 50))
         self.create_buttons()
 
         # Signals
@@ -31,10 +29,9 @@ class GameScene(Scene):
             (0, 0, 0),
             border=(255, 255, 255)
         )
-        home_button = IconButton(self.screen, (0, 0), (50, 50), Images.HOME.value, home_button_colors, self.handle_home_button)
-        # home_button = Button(self.screen, (0, 0), (50, 50), "", home_button_colors, self.handle_home_button)
+        home_button = IconButton(self.screen, (15, 50), (70, 70), Images.HOME.value, home_button_colors, self.handle_home_button)
 
-        surrender_button = Button(self.screen, (0, self.height / 2), (50, 50), "", home_button_colors, self.handle_home_button)
+        surrender_button = Button(self.screen, (15, 125), (70, 70), "", home_button_colors, self.handle_home_button)
         self.buttons = [
             home_button,
             surrender_button
@@ -82,26 +79,28 @@ class GameScene(Scene):
         self.draw_time_text(status_width, status_height, top_y, bottom_y)
 
     def draw_time_text(self, status_width: float, status_height: float, top_y: float, bottom_y: float):
-        if self.board.blitz_mode:
-            for player in self.board.players:
+        for player in self.board.players:
+            draw_text = f"{player.id + 1}"
+            if self.board.blitz_mode:
                 time_remaining_s = self.board.player_loss_timeout_s - player.time_elapsed_s
                 if time_remaining_s < 0:
                     time_remaining_s = 0
-                time_remaining_s = "%.2f" % round(time_remaining_s, 2)
-                font_size = int(status_height / 2.5)
-                text_font = pygame.font.Font(Fonts.STAR_BORN.value, font_size)
-                text_color = (128, 128, 128)
-                if self.board.turn == player.id:
-                    text_color = (255, 255, 255)    
-                text_render = text_font.render(time_remaining_s, False, text_color)
-                text_width, text_height = text_render.get_rect().size
-                text_x = (self.width - (status_width / 2) - (text_width / 2.5))
-                if player.id == PlayerId.ONE:
-                    text_y = bottom_y + (text_height / 2)
-                    self.screen.blit(text_render, (text_x, text_y))
-                else:
-                    text_y = top_y + (text_height / 2)
-                    self.screen.blit(text_render, (text_x, text_y))
+                draw_text = "%.2f" % round(time_remaining_s, 2)
+            font_size = int(status_height / 2.5)
+            text_font = pygame.font.Font(Fonts.STAR_BORN.value, font_size)
+            text_color = (128, 128, 128)
+            if self.board.turn == player.id:
+                text_color = (255, 255, 255)    
+            text_render = text_font.render(draw_text, False, text_color)
+            text_width, text_height = text_render.get_rect().size
+            text_x = (self.width - (status_width / 2) - (text_width / 2.5))
+            if player.id == PlayerId.ONE:
+                text_y = bottom_y + (text_height / 2)
+                self.screen.blit(text_render, (text_x, text_y))
+            else:
+                text_y = top_y + (text_height / 2)
+                self.screen.blit(text_render, (text_x, text_y))
+                
         
     def update(self):
         self.draw()
