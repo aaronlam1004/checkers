@@ -24,7 +24,6 @@ if __name__ == "__main__":
     EventHandler.set_scene(home_scene)
     
     while True:
-        scene_id = EventHandler.scene.id
         signal_id, data = EventHandler.handle_events()
         if signal_id == Signals.QUIT:
             break
@@ -35,7 +34,11 @@ if __name__ == "__main__":
             board.enable_blitz_mode()
             game_scene = GameScene(window.screen, board)
             EventHandler.set_scene(game_scene)
-        
+        elif signal_id == Signals.HOME:
+            game_scene = None
+            EventHandler.set_scene(home_scene)
+
+        scene_id = EventHandler.scene.id
         if scene_id == SceneId.HOME:
             home_scene.update()
         elif scene_id == SceneId.GAME:

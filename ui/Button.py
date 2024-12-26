@@ -9,10 +9,10 @@ from Resources import *
 @dataclass
 class ButtonColors:
     background: Tuple[int, int, int]
-    text: Tuple[int, int, int]
+    foreground: Tuple[int, int, int]
     highlight: Optional[Tuple[int, int, int]] = None
     border: Optional[Tuple[int, int, int]] = None
-    text_border: Optional[Tuple[int, int, int]] = None
+    foreground_border: Optional[Tuple[int, int, int]] = None
     
 
 class Button:
@@ -58,13 +58,13 @@ class Button:
         
         text_font = pygame.font.Font(Fonts.STAR_BORN.value, font_size)
         
-        text_render = text_font.render(self.text, False, self.colors.text)
+        text_render = text_font.render(self.text, False, self.colors.foreground)
         text_width, text_height = text_render.get_rect().size
         x = self.x + ((self.width / 2) - (text_width / 2))
         y = self.y + ((self.height / 2) - (text_height / 2))
         
-        if self.colors.text_border:
-            border_text_render = text_font.render(self.text, False, self.colors.text_border)
+        if self.colors.foreground_border:
+            border_text_render = text_font.render(self.text, False, self.colors.foreground_border)
             self.draw_text_border(border_text_render, x, y, 3)
 
         self.screen.blit(text_render, (x, y))

@@ -92,7 +92,6 @@ class Board:
         """
         if len(self.players) != 2:
             return BoardState.INVALID
-
         player_one = self.players[PlayerId.ONE]
         player_two = self.players[PlayerId.TWO]
         if player_one.captured == len(player_two.pieces):
@@ -162,7 +161,7 @@ class Board:
                 if can_capture:
                    change_turn = False
                    self.moves_dict = { (piece.row, piece.col): moves }
-            if change_turn:
+            if change_turn and self.state() == BoardState.NEUTRAL:
                 self.turn = PlayerId.TWO if self.turn == PlayerId.ONE else PlayerId.ONE
                 self.moves_dict = self.get_all_moves()
                 self.timestamp = time.time()

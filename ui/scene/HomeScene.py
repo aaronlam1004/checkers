@@ -10,13 +10,13 @@ class HomeScene(Scene):
         self.id = SceneId.HOME
         self.screen = screen
         self.width, self.height = self.screen.get_rect().size
-        self.init_buttons()
+        self.create_buttons()
 
         # Signals
         self.play_clicked = False
         self.quit_clicked = False
 
-    def init_buttons(self):
+    def create_buttons(self):
         button_width = self.width / 2
         button_height = 50
         x = (self.width / 2) - (button_width / 2)
@@ -27,9 +27,9 @@ class HomeScene(Scene):
             (43, 42, 40),
             highlight=(186, 63, 52),
             border=(255, 255, 255),
-            text_border=(255, 255, 255)
+            foreground_border=(255, 255, 255)
         )
-        play_button = Button(self.screen, (x, y), (button_width, button_height), "PLAY", play_button_colors, self.handle_play)
+        play_button = Button(self.screen, (x, y), (button_width, button_height), "PLAY", play_button_colors, self.handle_play_button)
         
         y += button_height + 10
         quit_button_colors = ButtonColors(
@@ -37,16 +37,16 @@ class HomeScene(Scene):
             (43, 42, 40),
             highlight=(186, 63, 52),
             border=(255, 255, 255),
-            text_border=(255, 255, 255)
+            foreground_border=(255, 255, 255)
         )
-        quit_button = Button(self.screen, (x, y), (button_width, button_height), "QUIT", quit_button_colors, self.handle_quit)
+        quit_button = Button(self.screen, (x, y), (button_width, button_height), "QUIT", quit_button_colors, self.handle_quit_button)
         
         self.buttons = [play_button, quit_button]
 
-    def handle_play(self):
+    def handle_play_button(self):
         self.play_clicked = True
         
-    def handle_quit(self):
+    def handle_quit_button(self):
         self.quit_clicked = True
         
     # @override
@@ -59,6 +59,9 @@ class HomeScene(Scene):
             mouse_x, mouse_y = pygame.mouse.get_pos()
             for button in self.buttons:
                 button.click(mouse_x, mouse_y)
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_ESCAPE:
+                self.handle_quit_button()
 
         if self.play_clicked:
             self.play_clicked = False

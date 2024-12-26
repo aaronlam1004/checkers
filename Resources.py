@@ -19,3 +19,4 @@ class Fonts(Enum):
 
 class Images(Enum):
     KING = os.path.join(IMGS, "king.png")
+    HOME = os.path.join(IMGS, "home.png")

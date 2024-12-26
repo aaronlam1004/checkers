@@ -9,6 +9,7 @@ class Signals(IntEnum):
     QUIT = -1
     NONE = 0
     PLAY = 1
+    HOME = 2
 
 class EventHandler:
     scene = None
