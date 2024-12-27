@@ -119,7 +119,7 @@ class Board:
         """
         return row >= 0 and row < self.size and col >= 0 and col < self.size
 
-    def check_on_edge(self, row: int, col: int):
+    def check_can_promote(self, row: int, col: int):
         """
         """
         if self.turn == PlayerId.ONE:
@@ -159,8 +159,6 @@ class Board:
             self.board[row][col] = piece
             piece.row = row
             piece.col = col
-            if self.check_on_edge(row, col):
-                piece.is_king = True
             if capture is not None:
                 self.players[self.turn].captured += 1
                 self.board[capture.row][capture.col] = -1
@@ -170,6 +168,10 @@ class Board:
                 if can_capture:
                    change_turn = False
                    self.moves_dict = { (piece.row, piece.col): moves }
+            if self.check_can_promote(row, col):
+                if not piece.is_king:
+                    piece.is_king = True
+                    change_turn = True
             if change_turn and self.state() == BoardState.NEUTRAL:
                 self.turn = PlayerId.TWO if self.turn == PlayerId.ONE else PlayerId.ONE
                 self.moves_dict = self.get_all_moves()

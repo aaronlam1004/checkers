@@ -2,12 +2,13 @@ import os
 import json
 from typing import Tuple
 
+from ui.Colors import Colors
+
 SETTINGS_JSON = os.path.join(os.path.dirname(__file__), "settings.json")
 
 class ColorSettings:
     player_one = (183, 63, 52)
     player_two = (43, 42, 63)
-    # player_two = (255, 255, 255)
     white_tile = (236, 236, 208)
     black_tile = (114, 149, 81)
     selected_tile = (255, 235, 59)
@@ -20,8 +21,8 @@ class ColorSettings:
         r, g, b = color
         avg_value = (r + g + b) / 3
         if avg_value > (max_value / 2):
-            return (0, 0, 0)   # Black
-        return (255, 255, 255) # White
+            return Colors.BLACK.value
+        return Colors.WHITE.value
 
     @staticmethod
     def get_bg_color(color: Tuple[int, int, int]):
@@ -75,7 +76,9 @@ class Settings:
                     color_settings = settings["color"]
                     for color_key, color in color_settings.items():
                         if hasattr(ColorSettings, color_key):
-                            setattr(ColorSettings, color_key, Settings.hex_to_rgb(color))
+                            rgb_color = Settings.hex_to_rgb(color)
+                            if rgb_color:
+                                setattr(ColorSettings, color_key, )
             except Exception as exception:
                 print(f"Error occur loading settings: {exception}")
                 

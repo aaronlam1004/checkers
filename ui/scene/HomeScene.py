@@ -1,7 +1,10 @@
+from typing import Tuple
+
 import pygame
 from pygame.surface import Surface
 
 from Resources import Fonts
+from Settings import ColorSettings
 from ui.scene.Scene import Scene, SceneId
 from ui.EventHandler import Signals
 from ui.Button import Button, ButtonColors
@@ -16,6 +19,10 @@ class HomeScene(Scene):
         # Signals
         self.play_clicked = False
         self.quit_clicked = False
+
+        # Animation
+        self.piece_one_y = 0
+        self.piece_two_y = 0
 
     def create_buttons(self):
         button_width = self.width / 2
@@ -83,18 +90,41 @@ class HomeScene(Scene):
         title_font = pygame.font.Font(Fonts.STAR_BORN.value, font_size)
         text_render = title_font.render("Checkers", False, (235, 106, 106))
         text_width, text_height = text_render.get_rect().size
+        
         x = (self.width / 10)
         y = text_height
-        self.draw_piece(x + (text_width / 4), y - (text_height / 3))
-        self.draw_piece(x + (text_width / 4) + 185, y - (text_height / 4))
+        
+        piece_one_final_y = y - (text_height / 3)
+        piece_two_final_y = y - (text_height / 4)
+        
+        if self.piece_one_y > piece_one_final_y:
+            self.piece_one_y = piece_one_final_y
+        if self.piece_two_y > piece_two_final_y:
+            self.piece_two_y = piece_two_final_y
+        
+        self.draw_piece(x + (text_width / 4), self.piece_one_y, ColorSettings.player_one)
+        self.draw_piece(x + (text_width / 4) + 185, self.piece_two_y, ColorSettings.player_two)
 
-        # Draw everything
         border_text_render = title_font.render("Checkers", False, (255, 255, 255))
         self.draw_title_border(border_text_render, x, y, 5)
         self.screen.blit(text_render, (x, y))
 
-    def draw_piece(self, x: float, y: float):
-        pygame.draw.ellipse(self.screen, (183, 63, 52), (x, y, 175, 175))
+    def draw_piece(self, x: float, y: float, color: Tuple[int, int, int]):
+        piece_width, piece_height = (175, 175)
+        pygame.draw.ellipse(self.screen, (255, 255, 255), (x, y, piece_width, piece_height))
+        border = 10
+        x += (border / 2)
+        y += (border / 2)
+        piece_width -= border
+        piece_height -= border
+        color_bg = ColorSettings.get_bg_color(color)
+        pygame.draw.ellipse(self.screen, color_bg, (x, y, piece_width, piece_height))
+        margin = 20
+        x += (margin / 2)
+        y += (margin / 2)
+        piece_width -= margin
+        piece_height -= margin
+        pygame.draw.ellipse(self.screen, color, (x, y, piece_width, piece_height))
 
     def draw_title_border(self, text_render, x: float, y: float, border: float):
         self.screen.blit(text_render, (x - border, y))
@@ -109,4 +139,6 @@ class HomeScene(Scene):
         
     def update(self):
         self.draw()
+        self.piece_one_y += 0.5
+        self.piece_two_y += 0.5
         
