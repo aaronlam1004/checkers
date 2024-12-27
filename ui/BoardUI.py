@@ -88,7 +88,18 @@ class BoardUI:
                 elif (row + col) % 2 == 0:
                     square_color = color_white
 
-                pygame.draw.rect(self.screen, square_color, (x, y, scalar_x, scalar_y))
+                radius = 10
+                if row == 0 and col == 0:
+                    pygame.draw.rect(self.screen, square_color, (x, y, scalar_x, scalar_y), border_top_left_radius=radius)
+                elif row == 0 and col == self.board.size - 1:
+                    pygame.draw.rect(self.screen, square_color, (x, y, scalar_x, scalar_y), border_top_right_radius=radius)
+                elif row == self.board.size - 1 and col == 0:
+                    pygame.draw.rect(self.screen, square_color, (x, y, scalar_x, scalar_y), border_bottom_left_radius=radius)
+                elif row == self.board.size - 1 and col == self.board.size - 1:
+                    pygame.draw.rect(self.screen, square_color, (x, y, scalar_x, scalar_y), border_bottom_right_radius=radius)
+                else:
+                    pygame.draw.rect(self.screen, square_color, (x, y, scalar_x, scalar_y))
+
                 if (row, col) in self.selected_moves:
                     pygame.draw.rect(self.screen, square_color, (x, y, scalar_x, scalar_y))
                     move_x = x + (scalar_x / 4)
