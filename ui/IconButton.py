@@ -21,9 +21,10 @@ class IconButton(Button):
         icon_img = pygame.image.load(self.icon).convert_alpha()
         icon_img = pygame.transform.scale(icon_img, (icon_width, icon_height))
         icon_width, icon_height = icon_img.get_size()
+        r, g, b = self.colors.foreground
         for row in range(icon_width):
             for col in range(icon_height):
                 _, _, _, alpha = icon_img.get_at((row, col))
-                icon_img.set_at((row, col), (255, 255, 255, alpha))
+                icon_img.set_at((row, col), (r, g, b, alpha))
         icon_rect = (self.x + (icon_width / 4), self.y + (icon_width / 4), icon_width, icon_height)
         self.screen.blit(icon_img, icon_rect)

@@ -4,6 +4,7 @@ from typing import List, Tuple
 import pygame
 from pygame.surface import Surface
 
+from Settings import ColorSettings
 from Resources import *
 from board.Board import Board, Player, PlayerId
 from ui.AudioPlayer import AudioPlayer
@@ -11,7 +12,6 @@ from ui.EventHandler import Signals
 
 class BoardUI:
     def __init__(self, screen: Surface, board: Board, dimensions: Tuple[int, int], offset: Tuple[int, int]):
-        # TODO: default options
         self.options = {}
         self.screen = screen
         self.board = board
@@ -22,8 +22,6 @@ class BoardUI:
         self.selected_piece = None
         self.selected_moves = {}
         
-    # TODO: load options
-
     def update(self):
         self.draw_game()
 
@@ -73,10 +71,10 @@ class BoardUI:
         self.draw_pieces(self.board.players[PlayerId.TWO], scalars)
 
     def draw_board(self, scalars: Tuple[float, float]):
-        color_white = (236, 236, 208)
-        color_black = (114, 149, 81)
-        color_move = (77, 77, 77)
-        color_selected_piece = (255, 235, 59)
+        color_white = ColorSettings.white_tile
+        color_black = ColorSettings.black_tile
+        color_move = (90, 90, 90)
+        color_selected_piece = ColorSettings.selected_tile
 
         x, y = self.offset
         offset_x, offset_y = self.offset
@@ -102,24 +100,23 @@ class BoardUI:
             
     def draw_pieces(self, player: Player, scalars: Tuple[float, float]):
         if player.id == PlayerId.ONE:
-            color_player_bg = (235, 106, 106)
-            color_player_fg = (186, 63, 52)
+            color_player_fg = ColorSettings.player_one
         else:
-            color_player_bg = (61, 60, 56)
-            color_player_fg = (43, 42, 40)
-        color_player_highlight = (0, 0, 0)
-
+            color_player_fg = ColorSettings.player_two
+        color_player_bg = ColorSettings.get_bg_color(color_player_fg)
+        color_player_border = (0, 0, 0)
+        
         offset_x, offset_y = self.offset
         scalar_x, scalar_y = scalars
         for piece in player.pieces:
             if piece.row != -1 or piece.col != -1:
                 x = piece.col
                 y = piece.row
-                self.draw_piece(x * scalar_x, y * scalar_y, scalar_x, scalar_y, 12, color_player_highlight)
+                self.draw_piece(x * scalar_x, y * scalar_y, scalar_x, scalar_y, 12, color_player_border)
                 self.draw_piece(x * scalar_x, y * scalar_y, scalar_x, scalar_y, 20, color_player_bg)
-                self.draw_piece(x * scalar_x, y * scalar_y, scalar_x, scalar_y, 30, color_player_fg)
+                self.draw_piece(x * scalar_x, y * scalar_y, scalar_x, scalar_y, 28, color_player_fg)
                 if piece.is_king:
-                    self.draw_king(x * scalar_x, y * scalar_y, scalar_x, scalar_y, 30, color_player_bg)
+                    self.draw_king(x * scalar_x, y * scalar_y, scalar_x, scalar_y, 28, color_player_bg)
 
     def draw_piece(self, x: float, y: float, width: float, height: float, margin: float, color: Tuple[int, int, int]):
         offset_x, offset_y = self.offset

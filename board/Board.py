@@ -50,6 +50,8 @@ class Board:
             self.blitz_mode = False
 
     def set_size(self, size: int):
+        """
+        """
         self.size = size
         self.setup()
 
@@ -68,10 +70,10 @@ class Board:
         self.turn = PlayerId.ONE
         
         # Setup players
-        self.players = [
-            Player(PlayerId.ONE, []),
-            Player(PlayerId.TWO, [])
-        ]
+        self.players = {
+            PlayerId.ONE: Player(PlayerId.ONE, []),
+            PlayerId.TWO: Player(PlayerId.TWO, [])
+        }
         
         # Only place pieces on the first 3 rows
         for row in range(3):
@@ -85,6 +87,7 @@ class Board:
                 self.players[PlayerId.ONE].pieces.append(piece)
                 self.board[bottom][col] = piece
 
+        # Get starting moves
         self.moves_dict = self.get_all_moves()
 
     def state(self):
@@ -104,6 +107,12 @@ class Board:
             elif player_two.time_elapsed_s >= self.player_loss_timeout_s:
                 return BoardState.RED_WIN
         return BoardState.NEUTRAL
+
+    def surrender(self, player_id: int):
+        """
+        """
+        if player_id in PlayerId:
+            self.players[player_id].captured = len(self.players[player_id].pieces)
 
     def check_in_bounds(self, row: int, col: int):
         """

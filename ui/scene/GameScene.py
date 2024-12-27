@@ -1,14 +1,17 @@
 import pygame
 from pygame.surface import Surface
 
-from Resources import *
+from Settings import ColorSettings
+from Resources import Images, Fonts
+
 from board.Board import Board, BoardState, PlayerId
 
 from ui.scene.Scene import Scene, SceneId
-from ui.Button import Button, ButtonColors
+from ui.Button import ButtonColors
 from ui.IconButton import IconButton
 from ui.BoardUI import BoardUI
 from ui.EventHandler import EventHandler, Signals
+
 
 class GameScene(Scene):
     def __init__(self, screen: Surface, board: Board):
@@ -24,21 +27,25 @@ class GameScene(Scene):
         self.home_clicked = False
 
     def create_buttons(self):
-        home_button_colors = ButtonColors(
-            (255, 0, 0),
-            (0, 0, 0),
-            border=(255, 255, 255)
-        )
+        home_button_colors = ButtonColors()
         home_button = IconButton(self.screen, (15, 50), (70, 70), Images.HOME.value, home_button_colors, self.handle_home_button)
 
-        surrender_button = Button(self.screen, (15, 125), (70, 70), "", home_button_colors, self.handle_home_button)
+        surrender_button = IconButton(self.screen, (15, 125), (70, 70), Images.FLAG.value, home_button_colors, self.handle_surrender_button)
         self.buttons = [
             home_button,
             surrender_button
         ]
+        self.button_colors = [
+            home_button_colors,
+            home_button_colors
+        ]
 
     def handle_home_button(self):
         self.home_clicked = True
+
+    def handle_surrender_button(self):
+        # TODO: need to check when online
+        self.board.surrender(self.board.turn)
 
     # @override
     def handle_event(self, event):
@@ -72,14 +79,14 @@ class GameScene(Scene):
         border = 8
         if self.board.turn == PlayerId.ONE:
             pygame.draw.rect(self.screen, (255, 255, 255), (x, bottom_y, status_width, status_height))
-            pygame.draw.rect(self.screen, (186, 63, 52), (x + (border / 2), bottom_y + (border / 2), status_width - border, status_height - border))
+            pygame.draw.rect(self.screen, ColorSettings.player_one, (x + (border / 2), bottom_y + (border / 2), status_width - border, status_height - border))
         else:
             pygame.draw.rect(self.screen, (255, 255, 255), (x, top_y, status_width, status_height))
-            pygame.draw.rect(self.screen, (43, 42, 40), (x + (border / 2), top_y + (border / 2), status_width - border, status_height - border))
+            pygame.draw.rect(self.screen, ColorSettings.player_two, (x + (border / 2), top_y + (border / 2), status_width - border, status_height - border))
         self.draw_time_text(status_width, status_height, top_y, bottom_y)
 
     def draw_time_text(self, status_width: float, status_height: float, top_y: float, bottom_y: float):
-        for player in self.board.players:
+        for player in self.board.players.values():
             draw_text = f"{player.id + 1}"
             if self.board.blitz_mode:
                 time_remaining_s = self.board.player_loss_timeout_s - player.time_elapsed_s
@@ -90,7 +97,10 @@ class GameScene(Scene):
             text_font = pygame.font.Font(Fonts.STAR_BORN.value, font_size)
             text_color = (128, 128, 128)
             if self.board.turn == player.id:
-                text_color = (255, 255, 255)    
+                if player.id == PlayerId.ONE:
+                    text_color = ColorSettings.get_contrast_color(ColorSettings.player_one)
+                else:
+                    text_color = ColorSettings.get_contrast_color(ColorSettings.player_two)  
             text_render = text_font.render(draw_text, False, text_color)
             text_width, text_height = text_render.get_rect().size
             text_x = (self.width - (status_width / 2) - (text_width / 2.5))
@@ -101,10 +111,16 @@ class GameScene(Scene):
                 text_y = top_y + (text_height / 2)
                 self.screen.blit(text_render, (text_x, text_y))
                 
-        
     def update(self):
         self.draw()
         for button in self.buttons:
             button.draw()
         self.draw_status()
         self.board.update()
+
+    def reload(self):
+        print("RELOADING")
+        for i, button in enumerate(self.buttons):
+            self.button_colors[i].background = ColorSettings.game_button
+            self.button_colors[i].foreground = ColorSettings.game_button_icon
+            button.set_colors(self.button_colors[i])

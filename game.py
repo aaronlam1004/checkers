@@ -1,12 +1,9 @@
 import pygame
 from enum import IntEnum
 
-# from checkers import Canvas, Checkers
-# from home import Home
-# from graphics import *
-# from events import *
+from HotLoader import HotLoader
+from Settings import Settings, SETTINGS_JSON
 
-# from board.Board import * 
 from board.StandardBoard import StandardBoard
 
 from ui.Window import Window
@@ -16,6 +13,9 @@ from ui.scene.GameScene import GameScene
 from ui.EventHandler import EventHandler, Signals
 
 if __name__ == "__main__":
+    Settings.load()
+    HotLoader.add_file(SETTINGS_JSON, Settings.load)
+    
     window = Window((800, 700), "Checkers")
     home_scene = HomeScene(window.screen)
     game_scene = None
@@ -24,6 +24,7 @@ if __name__ == "__main__":
     EventHandler.set_scene(home_scene)
     
     while True:
+        HotLoader.check()
         signal_id, data = EventHandler.handle_events()
         if signal_id == Signals.QUIT:
             break
@@ -35,9 +36,11 @@ if __name__ == "__main__":
             # board.enable_force_capture()
             game_scene = GameScene(window.screen, board)
             EventHandler.set_scene(game_scene)
+            HotLoader.add_callback(SETTINGS_JSON, game_scene.reload)
         elif signal_id == Signals.HOME:
             game_scene = None
             EventHandler.set_scene(home_scene)
+            HotLoader.pop_callback(SETTINGS_JSON)
 
         scene_id = EventHandler.scene.id
         if scene_id == SceneId.HOME:

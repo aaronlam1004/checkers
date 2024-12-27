@@ -4,12 +4,12 @@ from typing import Tuple, Callable, Optional
 import pygame
 from pygame.surface import Surface
 
-from Resources import *
+from Resources import Fonts
 
 @dataclass
 class ButtonColors:
-    background: Tuple[int, int, int]
-    foreground: Tuple[int, int, int]
+    background: Tuple[int, int, int] = (255, 255, 255)
+    foreground: Tuple[int, int, int] = (0, 0, 0)
     highlight: Optional[Tuple[int, int, int]] = None
     border: Optional[Tuple[int, int, int]] = None
     foreground_border: Optional[Tuple[int, int, int]] = None
@@ -22,10 +22,15 @@ class Button:
         self.x, self.y = position
         self.width, self.height = dimension
         self.text = text
+        self.on_click = on_click
+        self.set_colors(button_colors)
 
+    def set_colors(self, button_colors: ButtonColors):
         self.colors = button_colors
         self.color = self.colors.background
-        self.on_click = on_click
+
+    def set_text(self, text: str):
+        self.text = text
 
     def in_area(self, mouse_x: int, mouse_y: int):
         return mouse_x >= self.x and mouse_x <= self.x + self.width and mouse_y >= self.y and mouse_y <= self.y + self.height
@@ -57,7 +62,7 @@ class Button:
         font_size = int(text_size * aspect_ratio)
         
         text_font = pygame.font.Font(Fonts.STAR_BORN.value, font_size)
-        
+
         text_render = text_font.render(self.text, False, self.colors.foreground)
         text_width, text_height = text_render.get_rect().size
         x = self.x + ((self.width / 2) - (text_width / 2))
@@ -69,7 +74,7 @@ class Button:
 
         self.screen.blit(text_render, (x, y))
         
-    def draw_text_border(self, text_render, x: int, y: int, border: int):
+    def draw_text_border(self, text_render, x: float, y: float, border: float):
         self.screen.blit(text_render, (x - border, y))
         self.screen.blit(text_render, (x - border, y - border))
         self.screen.blit(text_render, (x - border, y + border))

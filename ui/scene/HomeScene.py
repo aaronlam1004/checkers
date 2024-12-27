@@ -1,6 +1,7 @@
 import pygame
 from pygame.surface import Surface
 
+from Resources import Fonts
 from ui.scene.Scene import Scene, SceneId
 from ui.EventHandler import Signals
 from ui.Button import Button, ButtonColors
@@ -73,8 +74,38 @@ class HomeScene(Scene):
 
     def draw(self):
         self.screen.fill((20, 20, 20))
+        self.draw_title()
         for button in self.buttons:
             button.draw()
+       
+    def draw_title(self):
+        font_size = int(self.width / 8)
+        title_font = pygame.font.Font(Fonts.STAR_BORN.value, font_size)
+        text_render = title_font.render("Checkers", False, (235, 106, 106))
+        text_width, text_height = text_render.get_rect().size
+        x = (self.width / 10)
+        y = text_height
+        self.draw_piece(x + (text_width / 4), y - (text_height / 3))
+        self.draw_piece(x + (text_width / 4) + 185, y - (text_height / 4))
+
+        # Draw everything
+        border_text_render = title_font.render("Checkers", False, (255, 255, 255))
+        self.draw_title_border(border_text_render, x, y, 5)
+        self.screen.blit(text_render, (x, y))
+
+    def draw_piece(self, x: float, y: float):
+        pygame.draw.ellipse(self.screen, (183, 63, 52), (x, y, 175, 175))
+
+    def draw_title_border(self, text_render, x: float, y: float, border: float):
+        self.screen.blit(text_render, (x - border, y))
+        self.screen.blit(text_render, (x - border, y - border))
+        self.screen.blit(text_render, (x - border, y + border))
+        self.screen.blit(text_render, (x + border, y))
+        self.screen.blit(text_render, (x + border, y - border))
+        self.screen.blit(text_render, (x + border, y + border))
+        self.screen.blit(text_render, (x, y - border))
+        self.screen.blit(text_render, (x, y + border))
+        
         
     def update(self):
         self.draw()
