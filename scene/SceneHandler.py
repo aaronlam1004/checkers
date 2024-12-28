@@ -3,31 +3,31 @@ from enum import IntEnum
 
 import pygame
 
-from ui.scene.Scene import Scene
+from scene.Scene import Scene
 
-class Signals(IntEnum):
+class SceneSignals(IntEnum):
     QUIT = -1
     NONE = 0
     PLAY = 1
     HOME = 2
 
-class EventHandler:
+class SceneHandler:
     scene = None
 
     @staticmethod
     def set_scene(scene: Scene):
-        EventHandler.scene = scene
+        SceneHandler.scene = scene
     
     @staticmethod
     def handle_events():
         event_data = None
-        event_signal = Signals.NONE
+        event_signal = SceneSignals.NONE
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return Signals.QUIT, None
-            if EventHandler.scene is not None:
-                signal_id, signal_data = EventHandler.scene.handle_event(event)
-                if signal_id != Signals.NONE:
+                return SceneSignals.QUIT, None
+            if SceneHandler.scene is not None:
+                signal_id, signal_data = SceneHandler.scene.handle_event(event)
+                if signal_id != SceneSignals.NONE:
                     event_signal = signal_id
                     event_data = signal_data
         return event_signal, event_data

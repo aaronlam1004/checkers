@@ -5,10 +5,10 @@ import pygame
 from pygame.surface import Surface
 
 from Settings import ColorSettings
-from Resources import *
-from board.Board import Board, Player, PlayerId
+from Resources import Images
+from board.Board import Board, Player, PlayerId, Piece
 from ui.AudioPlayer import AudioPlayer
-from ui.EventHandler import Signals
+from scene.SceneHandler import SceneSignals
 
 class BoardUI:
     def __init__(self, screen: Surface, board: Board, dimensions: Tuple[int, int], offset: Tuple[int, int]):
@@ -21,6 +21,8 @@ class BoardUI:
         self.available_pieces = []
         self.selected_piece = None
         self.selected_moves = {}
+
+        self.drag_piece = False
         
     def update(self):
         self.draw_game()
@@ -33,15 +35,17 @@ class BoardUI:
         col = (mouse_x - offset_x) // (width // self.board.size)
         return (row, col)
 
-    def handle_select_piece_event(self):
+    def get_select_piece_event(self):
         row, col = self.get_mouse_board_position()
         moves_dict = self.board.moves_dict
         if (row, col) in moves_dict:
-            self.selected_piece = self.board.find_piece(row, col)
-            self.selected_moves = moves_dict[(row, col)]
+            return self.board.find_piece(row, col), moves_dict[(row, col)]
+            # self.selected_piece = self.board.find_piece(row, col)
+            # self.selected_moves = moves_dict[(row, col)]
         else:
-            self.selected_piece = None
-            self.selected_moves = {}
+            return None, {}
+            # self.selected_piece = None
+            # self.selected_moves = {}
 
     def handle_move_piece_event(self):
         current_turn = self.board.turn
@@ -58,10 +62,21 @@ class BoardUI:
                     self.selected_moves = self.board.moves_dict
 
     def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            piece, moves = self.get_select_piece_event()
+            if piece is not None:
+                self.drag_piece = True
+            else:
+                self.handle_move_piece_event()
+                piece, moves = self.get_select_piece_event()
+            self.selected_piece = piece
+            self.selected_moves = moves
         if event.type == pygame.MOUSEBUTTONUP:
-            self.handle_move_piece_event()                
-            self.handle_select_piece_event()
-        return Signals.NONE, None
+            self.drag_piece = False
+            if self.selected_piece:
+                self.handle_move_piece_event()
+                self.selected_piece, self.selected_moves = self.get_select_piece_event()
+        return SceneSignals.NONE, None
 
     def draw(self):
         width, height = self.dimensions
@@ -88,7 +103,7 @@ class BoardUI:
                 elif (row + col) % 2 == 0:
                     square_color = color_white
 
-                radius = 10
+                radius = 20
                 if row == 0 and col == 0:
                     pygame.draw.rect(self.screen, square_color, (x, y, scalar_x, scalar_y), border_top_left_radius=radius)
                 elif row == 0 and col == self.board.size - 1:
@@ -115,30 +130,45 @@ class BoardUI:
         else:
             color_player_fg = ColorSettings.player_two
         color_player_bg = ColorSettings.get_bg_color(color_player_fg)
-        color_player_border = (0, 0, 0)
+        color_player_outline = (0, 0, 0)
         
-        offset_x, offset_y = self.offset
-        scalar_x, scalar_y = scalars
         for piece in player.pieces:
-            if piece.row != -1 or piece.col != -1:
-                x = piece.col
-                y = piece.row
-                self.draw_piece(x * scalar_x, y * scalar_y, scalar_x, scalar_y, 12, color_player_border)
-                self.draw_piece(x * scalar_x, y * scalar_y, scalar_x, scalar_y, 20, color_player_bg)
-                self.draw_piece(x * scalar_x, y * scalar_y, scalar_x, scalar_y, 28, color_player_fg)
-                if piece.is_king:
-                    self.draw_king(x * scalar_x, y * scalar_y, scalar_x, scalar_y, 28, color_player_bg)
+            self.draw_piece(piece, scalars, color_player_fg, color_player_bg, color_player_outline)
 
-    def draw_piece(self, x: float, y: float, width: float, height: float, margin: float, color: Tuple[int, int, int]):
-        offset_x, offset_y = self.offset
-        x += (margin / 2) + offset_x
-        y += (margin / 2) + offset_y
+    def draw_piece(self, piece: Piece, scalars: Tuple[float, float], color_fg: Tuple[int, int, int], color_bg: Tuple[int, int, int], color_outline: Tuple[int, int, int]):
+        scalar_x, scalar_y = scalars
+        if piece.row != - 1 and piece.col != -1:
+            is_selected = False
+            if self.selected_piece and self.selected_piece.row == piece.row and self.selected_piece.col == piece.col and self.drag_piece:
+                x, y = pygame.mouse.get_pos()
+                is_selected = True
+            else:
+                x = piece.col * scalar_x
+                y = piece.row * scalar_y
+            self.draw_piece_ellipse(x, y, scalar_x, scalar_y, 12, color_outline, is_selected)
+            self.draw_piece_ellipse(x, y, scalar_x, scalar_y, 20, color_bg, is_selected)
+            self.draw_piece_ellipse(x, y, scalar_x, scalar_y, 28, color_fg, is_selected)
+            if piece.is_king:
+                self.draw_king(x, y, scalar_x, scalar_y, 28, color_bg, is_selected)
+
+    def draw_piece_ellipse(self, x: float, y: float, width: float, height: float, margin: float, color: Tuple[int, int, int], is_selected: bool):
+        if is_selected:
+            x -= ((width - margin) / 2)
+            y -= ((height - margin) / 2)
+        else:
+             offset_x, offset_y = self.offset
+             x += (margin / 2) + offset_x
+             y += (margin / 2) + offset_y
         pygame.draw.ellipse(self.screen, color, (x, y, width - margin, height - margin))
 
-    def draw_king(self, x: float, y: float, width: float, height: float, margin: float, color: Tuple[int, int, int]):
+    def draw_king(self, x: float, y: float, width: float, height: float, margin: float, color: Tuple[int, int, int], is_selected: bool):
         offset_x, offset_y = self.offset
-        x += (margin / 2) + offset_x
-        y += (margin / 2) + offset_y
+        if is_selected:
+            x -= ((width - margin) / 2)
+            y -= ((height - margin) / 2) 
+        else:
+            x += (margin / 2) + offset_x
+            y += (margin / 2) + offset_y
         king_img = pygame.image.load(Images.KING.value).convert_alpha()
         king_img = pygame.transform.scale(king_img, (width / 1.75, height / 1.75))
         king_width, king_height = king_img.get_size()

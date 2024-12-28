@@ -6,12 +6,12 @@ from Resources import Images, Fonts
 
 from board.Board import Board, BoardState, PlayerId
 
-from ui.scene.Scene import Scene, SceneId
+from scene.Scene import Scene, SceneId
+from scene.SceneHandler import SceneSignals
 from ui.Button import ButtonColors
 from ui.IconButton import IconButton
 from ui.BoardUI import BoardUI
-from ui.EventHandler import EventHandler, Signals
-
+from ui.Popup import Popup
 
 class GameScene(Scene):
     def __init__(self, screen: Surface, board: Board):
@@ -22,6 +22,9 @@ class GameScene(Scene):
         self.board = board
         self.board_ui = BoardUI(self.screen, board, (600, 600), (100, 50))
         self.create_buttons()
+
+        # Popup
+        self.popup_game_over = Popup(self.screen)
 
         # Signals
         self.home_clicked = False
@@ -56,22 +59,28 @@ class GameScene(Scene):
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_ESCAPE:
                 self.handle_home_button()
-                
+
         if self.home_clicked:
             self.home_clicked = False
-            return Signals.HOME, None
+            return SceneSignals.HOME, None
 
         if self.board.state() == BoardState.NEUTRAL:
             return self.board_ui.handle_event(event)
-        return Signals.NONE, None
+        return SceneSignals.NONE, None
 
     def draw(self):
         self.screen.fill((20, 20, 20))
         self.board_ui.draw()
+        self.draw_status()
+        for button in self.buttons:
+            button.draw()
+        # if self.board.state() != BoardState.NEUTRAL and self.board.state() != BoardState.INVALID:
+        #     self.popup_game_over.show()
+        self.popup_game_over.draw()
 
     def draw_status(self):
-        status_width = 150
-        status_height = 50
+        status_width = 175
+        status_height = 45
         x = (self.width - status_width)
         top_y = 0
         bottom_y = self.height - status_height
@@ -83,9 +92,9 @@ class GameScene(Scene):
         else:
             pygame.draw.rect(self.screen, (255, 255, 255), (x, top_y, status_width, status_height))
             pygame.draw.rect(self.screen, ColorSettings.player_two, (x + (border / 2), top_y + (border / 2), status_width - border, status_height - border))
-        self.draw_time_text(status_width, status_height, top_y, bottom_y)
+        self.draw_player_text(status_width, status_height, top_y, bottom_y)
 
-    def draw_time_text(self, status_width: float, status_height: float, top_y: float, bottom_y: float):
+    def draw_player_text(self, status_width: float, status_height: float, top_y: float, bottom_y: float):
         for player in self.board.players.values():
             draw_text = f"{player.id + 1}"
             if self.board.blitz_mode:
@@ -113,9 +122,6 @@ class GameScene(Scene):
                 
     def update(self):
         self.draw()
-        for button in self.buttons:
-            button.draw()
-        self.draw_status()
         self.board.update()
 
     def reload(self):

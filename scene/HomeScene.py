@@ -5,8 +5,8 @@ from pygame.surface import Surface
 
 from Resources import Fonts
 from Settings import ColorSettings
-from ui.scene.Scene import Scene, SceneId
-from ui.EventHandler import Signals
+from scene.Scene import Scene, SceneId
+from scene.SceneHandler import SceneSignals
 from ui.Button import Button, ButtonColors
 
 class HomeScene(Scene):
@@ -73,11 +73,11 @@ class HomeScene(Scene):
 
         if self.play_clicked:
             self.play_clicked = False
-            return Signals.PLAY, None
+            return SceneSignals.PLAY, None
         elif self.quit_clicked:
             self.quit_clicked = False
-            return Signals.QUIT, None
-        return Signals.NONE, None
+            return SceneSignals.QUIT, None
+        return SceneSignals.NONE, None
 
     def draw(self):
         self.screen.fill((20, 20, 20))
