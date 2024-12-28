@@ -7,13 +7,15 @@ from ui.Button import Button, ButtonColors
 
 class IconButton(Button):
     def __init__(self, screen: Surface, position: Tuple[int, int], dimension: Tuple[int, int],
-                 icon: str, button_colors: ButtonColors, on_click: Callable[[None], None]):
+                 icon: str, button_colors: ButtonColors, on_click: Callable[[None], None],
+                 visible: bool = True):
         self.icon = icon
-        super().__init__(screen, position, dimension, "", button_colors, on_click)
+        super().__init__(screen, position, dimension, "", button_colors, on_click, visible)
 
     def draw(self):
         super().draw()
-        self.draw_icon()
+        if self.visible:
+            self.draw_icon()
 
     def draw_icon(self):
         icon_width = self.width / 1.5

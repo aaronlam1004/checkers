@@ -17,12 +17,14 @@ class ButtonColors:
 
 class Button:
     def __init__(self, screen: Surface, position: Tuple[int, int], dimension: Tuple[int, int],
-                 text: str, button_colors: ButtonColors, on_click: Callable[[None], None]):
+                 text: str, button_colors: ButtonColors, on_click: Callable[[None], None],
+                 visible: bool = True):
         self.screen = screen
         self.x, self.y = position
         self.width, self.height = dimension
         self.text = text
         self.on_click = on_click
+        self.visible = visible
         self.set_colors(button_colors)
 
     def set_colors(self, button_colors: ButtonColors):
@@ -32,27 +34,36 @@ class Button:
     def set_text(self, text: str):
         self.text = text
 
+    def show(self):
+        self.visible = True
+
+    def hide(self):
+        self.visible = False
+
     def in_area(self, mouse_x: int, mouse_y: int):
         return mouse_x >= self.x and mouse_x <= self.x + self.width and mouse_y >= self.y and mouse_y <= self.y + self.height
 
     def hover(self, mouse_x: int, mouse_y: int):
-        if self.in_area(mouse_x, mouse_y):
-            self.color = self.colors.highlight
-        else:
-            self.color = self.colors.background
+        if self.visible:
+            if self.in_area(mouse_x, mouse_y):
+                self.color = self.colors.highlight
+            else:
+                self.color = self.colors.background
 
     def click(self, mouse_x: int, mouse_y: int):
-        if self.in_area(mouse_x, mouse_y):
-            self.on_click()
+        if self.visible:
+            if self.in_area(mouse_x, mouse_y):
+                self.on_click()
 
     def draw(self):
-        if self.colors.border:
-            pygame.draw.rect(self.screen, self.colors.border, (self.x, self.y, self.width, self.height), border_radius=3)
-            border = 8
-            pygame.draw.rect(self.screen, self.color, (self.x + (border / 2), self.y + (border / 2), self.width - border, self.height - border), border_radius=3)
-        else:
-            pygame.draw.rect(self.screen, self.color, (self.x, self.y, self.width, self.height), border_radius=3)
-        self.draw_text()
+        if self.visible:
+            if self.colors.border:
+                pygame.draw.rect(self.screen, self.colors.border, (self.x, self.y, self.width, self.height), border_radius=3)
+                border = 8
+                pygame.draw.rect(self.screen, self.color, (self.x + (border / 2), self.y + (border / 2), self.width - border, self.height - border), border_radius=3)
+            else:
+                pygame.draw.rect(self.screen, self.color, (self.x, self.y, self.width, self.height), border_radius=3)
+            self.draw_text()
 
     def draw_text(self):
         screen_width, screen_height = self.screen.get_rect().size

@@ -30,7 +30,7 @@ class ColorSettings:
         r, g, b = color
         avg_value = (r + g + b) / 3
         percent = 0.10
-        if avg_value > (max_value / 2):
+        if avg_value > (max_value / 2) or any([val == max_value for val in color]):
             r -= (max_value * percent)
             g -= (max_value * percent)
             b -= (max_value * percent)
@@ -78,7 +78,7 @@ class Settings:
                         if hasattr(ColorSettings, color_key):
                             rgb_color = Settings.hex_to_rgb(color)
                             if rgb_color:
-                                setattr(ColorSettings, color_key, )
+                                setattr(ColorSettings, color_key, rgb_color)
             except Exception as exception:
                 print(f"Error occur loading settings: {exception}")
                 

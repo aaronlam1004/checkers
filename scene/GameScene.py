@@ -9,9 +9,41 @@ from board.Board import Board, BoardState, PlayerId
 from scene.Scene import Scene, SceneId
 from scene.SceneHandler import SceneSignals
 from ui.Button import ButtonColors
-from ui.IconButton import IconButton
+from ui.IconButton import Button, IconButton
 from ui.BoardUI import BoardUI
 from ui.Popup import Popup
+
+class GameOverPopup(Popup):
+    def __init__(self, screen: Surface, parent: Scene):
+        self.parent = parent
+        super().__init__(screen)
+        self.create_buttons()
+
+    def create_buttons(self):
+        button_margin = 25
+        button_width = self.width - (button_margin * 2)
+        button_height = 50
+        x = self.margin + (button_margin)
+        play_again_button = Button(self.screen, (x, self.height / 2), (button_width , button_height), "PLAY AGAIN", ButtonColors(), self.handle_play_again_button)
+        self.buttons.append(play_again_button)
+
+    # @override
+    def hide(self):
+        self.parent.board.set_idle()
+        super().hide()
+
+    def handle_play_again_button(self):
+        self.hide()
+        self.parent.board.setup()
+
+    # @override
+    def handle_event(self, event):
+        super().handle_event(event)
+        if event.type == pygame.MOUSEBUTTONUP:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            for button in self.buttons:
+                button.click(mouse_x, mouse_y)
+                        
 
 class GameScene(Scene):
     def __init__(self, screen: Surface, board: Board):
@@ -24,58 +56,66 @@ class GameScene(Scene):
         self.create_buttons()
 
         # Popup
-        self.popup_game_over = Popup(self.screen)
+        self.popup_game_over = GameOverPopup(self.screen, self)
 
         # Signals
         self.home_clicked = False
 
     def create_buttons(self):
         home_button_colors = ButtonColors()
-        home_button = IconButton(self.screen, (15, 50), (70, 70), Images.HOME.value, home_button_colors, self.handle_home_button)
-
-        surrender_button = IconButton(self.screen, (15, 125), (70, 70), Images.FLAG.value, home_button_colors, self.handle_surrender_button)
+        home_button = IconButton(self.screen, (15, 50), (70, 70), Images.HOME.value, ButtonColors(), self.handle_home_button)
+        surrender_button = IconButton(self.screen, (15, 125), (70, 70), Images.FLAG.value, ButtonColors(), self.handle_surrender_button)
+        play_again_button = IconButton(self.screen, (15, 125), (70, 70), Images.REFRESH.value, ButtonColors(), self.handle_play_again_button, visible = False)
         self.buttons = [
             home_button,
-            surrender_button
-        ]
-        self.button_colors = [
-            home_button_colors,
-            home_button_colors
+            surrender_button,
+            play_again_button
         ]
 
     def handle_home_button(self):
         self.home_clicked = True
 
     def handle_surrender_button(self):
-        # TODO: need to check when online
+        # TODO: need to handle when online
         self.board.surrender(self.board.turn)
+
+    def handle_play_again_button(self):
+        # TODO: need to handle when online
+        self.board.setup()
 
     # @override
     def handle_event(self, event):
-        if event.type == pygame.MOUSEBUTTONUP:
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            for button in self.buttons:
-                button.click(mouse_x, mouse_y)
-        elif event.type == pygame.KEYUP:
-            if event.key == pygame.K_ESCAPE:
-                self.handle_home_button()
-
-        if self.home_clicked:
-            self.home_clicked = False
-            return SceneSignals.HOME, None
-
-        if self.board.state() == BoardState.NEUTRAL:
-            return self.board_ui.handle_event(event)
+        if self.popup_game_over.visible:
+            self.popup_game_over.handle_event(event)
+        else:
+            if event.type == pygame.MOUSEBUTTONUP:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                for button in self.buttons:
+                    button.click(mouse_x, mouse_y)
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_ESCAPE:
+                    self.handle_home_button()
+            if self.home_clicked:
+                self.home_clicked = False
+                return SceneSignals.HOME, None
+            if self.board.state() == BoardState.NEUTRAL:
+                return self.board_ui.handle_event(event)
         return SceneSignals.NONE, None
 
     def draw(self):
         self.screen.fill((20, 20, 20))
         self.board_ui.draw()
         self.draw_status()
+
+        _, surrender_button, play_again_button = self.buttons
+        if self.board.state() == BoardState.IDLE:
+            surrender_button.hide()
+            play_again_button.show()
+        else:
+            surrender_button.show()
+            play_again_button.hide()
         for button in self.buttons:
             button.draw()
-        # if self.board.state() != BoardState.NEUTRAL and self.board.state() != BoardState.INVALID:
-        #     self.popup_game_over.show()
         self.popup_game_over.draw()
 
     def draw_status(self):
@@ -123,10 +163,5 @@ class GameScene(Scene):
     def update(self):
         self.draw()
         self.board.update()
-
-    def reload(self):
-        print("RELOADING")
-        for i, button in enumerate(self.buttons):
-            self.button_colors[i].background = ColorSettings.game_button
-            self.button_colors[i].foreground = ColorSettings.game_button_icon
-            button.set_colors(self.button_colors[i])
+        if self.board.state() != BoardState.NEUTRAL and self.board.state() != BoardState.IDLE:
+            self.popup_game_over.show()

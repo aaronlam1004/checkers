@@ -32,11 +32,10 @@ if __name__ == "__main__":
             board = StandardBoard()
             board.setup()
             # board.set_size(10)
-            # board.enable_blitz_mode()
+            board.enable_blitz_mode()
             # board.enable_force_capture()
             game_scene = GameScene(window.screen, board)
             SceneHandler.set_scene(game_scene)
-            HotLoader.add_callback(SETTINGS_JSON, game_scene.reload)
         elif signal_id == SceneSignals.HOME:
             game_scene = None
             SceneHandler.set_scene(home_scene)

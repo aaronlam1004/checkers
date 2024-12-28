@@ -6,14 +6,18 @@ from pygame.surface import Surface
 from ui.Button import Button
 
 class Popup:
-    def __init__(self, screen: Surface, title: str = "", buttons: List[Button] = []):
+    def __init__(self, screen: Surface, title: str = ""):
         self.visible = False
         self.screen = screen
         self.title = title
-        self.buttons = buttons
+        self.buttons = []
+        self.margin = 50
         self.screen_width, self.screen_height = self.screen.get_rect().size
-        self.width = self.screen_width - 50
-        self.height = self.screen_height - 50
+        self.width = self.screen_width - (self.margin * 2)
+        self.height = self.screen_height - (self.margin * 2)
+
+    def set_title(self, title: str):
+        self.title = title
 
     def show(self):
         self.visible = True
@@ -22,7 +26,10 @@ class Popup:
         self.visible = False
 
     def handle_event(self, event):
-        pass
+        if self.visible:
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_ESCAPE:
+                    self.hide()
 
     def draw(self):
         if self.visible:

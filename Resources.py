@@ -18,6 +18,7 @@ class Fonts(Enum):
     STAR_BORN = os.path.join(FONTS, "Starborn.otf")
 
 class Images(Enum):
-    KING = os.path.join(IMGS, "king.png")
-    HOME = os.path.join(IMGS, "home.png")
-    FLAG = os.path.join(IMGS, "flag.png")
+    KING    = os.path.join(IMGS, "king.png")
+    HOME    = os.path.join(IMGS, "home.png")
+    FLAG    = os.path.join(IMGS, "flag.png")
+    REFRESH = os.path.join(IMGS, "refresh.png")

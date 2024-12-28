@@ -22,7 +22,7 @@ class PlayerId(IntEnum):
     TWO = 1
 
 class BoardState(IntEnum):
-    INVALID   = -1
+    IDLE      = -1
     NEUTRAL   =  0
     RED_WIN   =  1
     BLACK_WIN =  2
@@ -36,6 +36,7 @@ class Board:
         self.num_turns = 0
         self.blitz_mode = False
         self.player_loss_timeout_s = 60
+        self.playing = False
 
     def enable_blitz_mode(self):
         """
@@ -55,12 +56,16 @@ class Board:
         self.size = size
         self.setup()
 
+    def set_idle(self):
+        self.playing = False
+
     def setup(self):
         """
         """
         self.num_turns = 0
         self.board = [[-1 for _ in range(self.size)] for _ in range(self.size)]
         self.load()
+        self.playing = True
 
     def load(self):
         """
@@ -93,8 +98,8 @@ class Board:
     def state(self):
         """
         """
-        if len(self.players) != 2:
-            return BoardState.INVALID
+        if not self.playing:
+            return BoardState.IDLE
         player_one = self.players[PlayerId.ONE]
         player_two = self.players[PlayerId.TWO]
         if player_one.captured == len(player_two.pieces):
