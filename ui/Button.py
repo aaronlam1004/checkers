@@ -19,13 +19,14 @@ class ButtonColors:
 class Button:
     def __init__(self, screen: Surface, position: Tuple[int, int], dimension: Tuple[int, int],
                  text: str, button_colors: ButtonColors, on_click: Callable[[None], None],
-                 visible: bool = True):
+                 visible: bool = True, border_size: int = 8):
         self.screen = screen
         self.x, self.y = position
         self.width, self.height = dimension
         self.text = text
         self.on_click = on_click
         self.visible = visible
+        self.border_size = border_size
         self.set_colors(button_colors)
 
     def set_colors(self, button_colors: ButtonColors):
@@ -58,12 +59,17 @@ class Button:
 
     def draw(self):
         if self.visible:
+            x = self.x
+            y = self.y
+            width = self.width
+            height = self.height
             if self.colors.border:
-                pygame.draw.rect(self.screen, self.colors.border, (self.x, self.y, self.width, self.height), border_radius=3)
-                border = 8
-                pygame.draw.rect(self.screen, self.color, (self.x + (border / 2), self.y + (border / 2), self.width - border, self.height - border), border_radius=3)
-            else:
-                pygame.draw.rect(self.screen, self.color, (self.x, self.y, self.width, self.height), border_radius=3)
+                pygame.draw.rect(self.screen, self.colors.border, (x, y, width, height), border_radius=3)
+                x += (self.border_size / 2)
+                y += (self.border_size / 2)
+                width -= self.border_size
+                height -= self.border_size
+            pygame.draw.rect(self.screen, self.color, (x, y, width, height), border_radius=3)
             self.draw_text()
 
     def draw_text(self):

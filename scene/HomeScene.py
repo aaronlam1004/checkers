@@ -60,24 +60,22 @@ class HomeScene(Scene):
         
     # @override
     def handle_event(self, event):
-        if event.type == pygame.MOUSEMOTION:
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            for button in self.buttons:
-                button.hover(mouse_x, mouse_y)
-        elif event.type == pygame.MOUSEBUTTONUP:
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            for button in self.buttons:
-                button.click(mouse_x, mouse_y)
-        elif event.type == pygame.KEYUP:
-            if event.key == pygame.K_ESCAPE:
-                self.handle_quit_button()
-
+        mouse_x, mouse_y = pygame.mouse.get_pos()
         if self.play_clicked:
             self.play_clicked = False
             return SceneSignals.PLAY, None
         elif self.quit_clicked:
             self.quit_clicked = False
             return SceneSignals.QUIT, None
+        if event.type == pygame.MOUSEMOTION:
+            for button in self.buttons:
+                button.hover(mouse_x, mouse_y)
+        elif event.type == pygame.MOUSEBUTTONUP:
+            for button in self.buttons:
+                button.click(mouse_x, mouse_y)
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_ESCAPE:
+                self.handle_quit_button()
         return SceneSignals.NONE, None
 
     def draw(self):
