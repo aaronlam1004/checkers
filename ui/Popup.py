@@ -45,3 +45,13 @@ class Popup:
         pygame.draw.rect(self.screen, (255, 0, 0), (x, y, self.width, self.height), border_radius=20)
         for button in self.buttons:
             button.draw()
+
+    def draw_title_border(self, text_render, x: float, y: float, border: float):
+        self.screen.blit(text_render, (x - border, y))
+        self.screen.blit(text_render, (x - border, y - border))
+        self.screen.blit(text_render, (x - border, y + border))
+        self.screen.blit(text_render, (x + border, y))
+        self.screen.blit(text_render, (x + border, y - border))
+        self.screen.blit(text_render, (x + border, y + border))
+        self.screen.blit(text_render, (x, y - border))
+        self.screen.blit(text_render, (x, y + border))

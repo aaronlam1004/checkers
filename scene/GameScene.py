@@ -1,11 +1,11 @@
+from typing import Tuple
+
 import pygame
 from pygame.surface import Surface
 
 from Settings import ColorSettings
 from Resources import Images, Fonts
-
 from board.Board import Board, BoardState, PlayerId
-
 from scene.Scene import Scene, SceneId
 from scene.SceneHandler import SceneSignals
 from ui.Button import ButtonColors
@@ -16,6 +16,7 @@ from ui.Popup import Popup
 class GameOverPopup(Popup):
     def __init__(self, screen: Surface, parent: Scene):
         self.parent = parent
+        self.player_win_id = -1
         super().__init__(screen)
         self.create_buttons()
 
@@ -26,6 +27,9 @@ class GameOverPopup(Popup):
         x = self.margin + (button_margin)
         play_again_button = Button(self.screen, (x, self.height / 2), (button_width , button_height), "PLAY AGAIN", ButtonColors(), self.handle_play_again_button)
         self.buttons.append(play_again_button)
+
+    def set_player_win(self, player_win_id: int):
+        self.player_win_id = player_win_id
 
     # @override
     def hide(self):
@@ -43,6 +47,52 @@ class GameOverPopup(Popup):
             mouse_x, mouse_y = pygame.mouse.get_pos()
             for button in self.buttons:
                 button.click(mouse_x, mouse_y)
+
+    # @override
+    def draw(self):
+        super().draw()
+        if self.visible:
+            if self.player_win_id in PlayerId:
+                player_color = ColorSettings.player_one
+                if self.player_win_id == PlayerId.TWO:
+                    player_color = ColorSettings.player_two
+                self.draw_piece(player_color)
+                self.draw_title(self.player_win_id, player_color)
+
+    def draw_title(self, player_id: int, player_color: Tuple[int, int, int]):
+        font_size = int(self.width / 10)
+        text = f"Player {player_id + 1} Wins"
+        title_font = pygame.font.Font(Fonts.STAR_BORN.value, font_size)
+        text_render = title_font.render(text, False, player_color)
+        text_width, text_height = text_render.get_rect().size
+        
+        x = self.margin + ((self.width - text_width) / 2)
+        y = text_height + (self.margin * 1.25)
+
+        border_text_render = title_font.render(text, False, (255, 255, 255))
+        self.draw_title_border(border_text_render, x, y, 9)
+        inside_border_text_render = title_font.render(text, False, ColorSettings.get_bg_color(player_color))
+        self.draw_title_border(inside_border_text_render, x, y, 4)
+        self.screen.blit(text_render, (x, y))
+
+    def draw_piece(self, color: Tuple[int, int, int]):
+        piece_width, piece_height = (self.width / 5, self.width / 5)
+        x = (self.screen_width - (self.margin * 2)) - piece_width
+        y = self.margin * 2
+        pygame.draw.ellipse(self.screen, (255, 255, 255), (x, y, piece_width, piece_height))
+        border = 10
+        x += (border / 2)
+        y += (border / 2)
+        piece_width -= border
+        piece_height -= border
+        color_bg = ColorSettings.get_bg_color(color)
+        pygame.draw.ellipse(self.screen, color_bg, (x, y, piece_width, piece_height))
+        margin = 20
+        x += (margin / 2)
+        y += (margin / 2)
+        piece_width -= margin
+        piece_height -= margin
+        pygame.draw.ellipse(self.screen, color, (x, y, piece_width, piece_height))
                         
 
 class GameScene(Scene):
@@ -164,4 +214,8 @@ class GameScene(Scene):
         self.draw()
         self.board.update()
         if self.board.state() != BoardState.NEUTRAL and self.board.state() != BoardState.IDLE:
+            if self.board.state() == BoardState.RED_WIN:
+                self.popup_game_over.set_player_win(PlayerId.ONE)
+            else:
+                self.popup_game_over.set_player_win(PlayerId.TWO)
             self.popup_game_over.show()

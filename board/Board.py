@@ -18,8 +18,8 @@ class Player:
     time_elapsed_s: int = 0
 
 class PlayerId(IntEnum):
-    ONE = 0
-    TWO = 1
+    ONE  = 0
+    TWO  = 1
 
 class BoardState(IntEnum):
     IDLE      = -1
@@ -117,7 +117,8 @@ class Board:
         """
         """
         if player_id in PlayerId:
-            self.players[player_id].captured = len(self.players[player_id].pieces)
+            player_win_id = PlayerId.ONE if player_id == PlayerId.TWO else PlayerId.TWO
+            self.players[player_win_id].captured = len(self.players[player_id].pieces)
 
     def check_in_bounds(self, row: int, col: int):
         """

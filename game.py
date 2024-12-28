@@ -39,7 +39,6 @@ if __name__ == "__main__":
         elif signal_id == SceneSignals.HOME:
             game_scene = None
             SceneHandler.set_scene(home_scene)
-            HotLoader.pop_callback(SETTINGS_JSON)
 
         scene_id = SceneHandler.scene.id
         if scene_id == SceneId.HOME:

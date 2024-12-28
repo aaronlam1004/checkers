@@ -32,7 +32,8 @@ class HotLoader:
     @staticmethod
     def pop_callback(f: str):
         if f in HotLoader.files:
-            HotLoader.files[f].callbacks.pop()
+            if len(Hotloader.files[f].callbacks) > 1:
+                HotLoader.files[f].callbacks.pop()
     
     @staticmethod
     def check():
