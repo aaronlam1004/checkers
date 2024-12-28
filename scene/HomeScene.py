@@ -8,6 +8,7 @@ from Settings import ColorSettings
 from scene.Scene import Scene, SceneId
 from scene.SceneHandler import SceneSignals
 from ui.Button import Button, ButtonColors
+import ui.GraphicUtils as GraphicUtils
 
 class HomeScene(Scene):
     def __init__(self, screen: Surface):
@@ -101,41 +102,13 @@ class HomeScene(Scene):
             self.piece_one_y = piece_one_final_y
         if self.piece_two_y > piece_two_final_y:
             self.piece_two_y = piece_two_final_y
-        
-        self.draw_piece(x + (text_width / 4), self.piece_one_y, ColorSettings.player_one)
-        self.draw_piece(x + (text_width / 4) + 185, self.piece_two_y, ColorSettings.player_two)
+
+        GraphicUtils.draw_piece(self.screen, (x + (text_width / 4), self.piece_one_y), (175, 175), ColorSettings.player_one, outline_color=(255, 255, 255))
+        GraphicUtils.draw_piece(self.screen, (x + (text_width / 4) + 185, self.piece_two_y), (175, 175), ColorSettings.player_two, outline_color=(255, 255, 255))
 
         border_text_render = title_font.render("Checkers", False, (255, 255, 255))
-        self.draw_title_border(border_text_render, x, y, 5)
-        self.screen.blit(text_render, (x, y))
-
-    def draw_piece(self, x: float, y: float, color: Tuple[int, int, int]):
-        piece_width, piece_height = (175, 175)
-        pygame.draw.ellipse(self.screen, (255, 255, 255), (x, y, piece_width, piece_height))
-        border = 10
-        x += (border / 2)
-        y += (border / 2)
-        piece_width -= border
-        piece_height -= border
-        color_bg = ColorSettings.get_bg_color(color)
-        pygame.draw.ellipse(self.screen, color_bg, (x, y, piece_width, piece_height))
-        margin = 20
-        x += (margin / 2)
-        y += (margin / 2)
-        piece_width -= margin
-        piece_height -= margin
-        pygame.draw.ellipse(self.screen, color, (x, y, piece_width, piece_height))
-
-    def draw_title_border(self, text_render, x: float, y: float, border: float):
-        self.screen.blit(text_render, (x - border, y))
-        self.screen.blit(text_render, (x - border, y - border))
-        self.screen.blit(text_render, (x - border, y + border))
-        self.screen.blit(text_render, (x + border, y))
-        self.screen.blit(text_render, (x + border, y - border))
-        self.screen.blit(text_render, (x + border, y + border))
-        self.screen.blit(text_render, (x, y - border))
-        self.screen.blit(text_render, (x, y + border))
-        
+        GraphicUtils.draw_text_border(self.screen, border_text_render, x, y, 5)
+        self.screen.blit(text_render, (x, y))   
         
     def update(self):
         self.draw()

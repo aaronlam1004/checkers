@@ -12,6 +12,7 @@ from ui.Button import ButtonColors
 from ui.IconButton import Button, IconButton
 from ui.BoardUI import BoardUI
 from ui.Popup import Popup
+import ui.GraphicUtils as GraphicUtils
 
 class GameOverPopup(Popup):
     def __init__(self, screen: Surface, parent: Scene):
@@ -56,7 +57,11 @@ class GameOverPopup(Popup):
                 player_color = ColorSettings.player_one
                 if self.player_win_id == PlayerId.TWO:
                     player_color = ColorSettings.player_two
-                self.draw_piece(player_color)
+
+                piece_width, piece_height = (150, 150)
+                piece_x = (self.screen_width - (self.margin * 2)) - piece_width
+                piece_y = self.margin * 2
+                GraphicUtils.draw_piece(self.screen, (piece_x, piece_y), (piece_width, piece_height), player_color, outline_color=(255, 255, 255))
                 self.draw_title(self.player_win_id, player_color)
 
     def draw_title(self, player_id: int, player_color: Tuple[int, int, int]):
@@ -70,29 +75,10 @@ class GameOverPopup(Popup):
         y = text_height + (self.margin * 1.25)
 
         border_text_render = title_font.render(text, False, (255, 255, 255))
-        self.draw_title_border(border_text_render, x, y, 9)
+        GraphicUtils.draw_text_border(self.screen, border_text_render, x, y, 9)
         inside_border_text_render = title_font.render(text, False, ColorSettings.get_bg_color(player_color))
-        self.draw_title_border(inside_border_text_render, x, y, 4)
+        GraphicUtils.draw_text_border(self.screen, inside_border_text_render, x, y, 4)
         self.screen.blit(text_render, (x, y))
-
-    def draw_piece(self, color: Tuple[int, int, int]):
-        piece_width, piece_height = (self.width / 5, self.width / 5)
-        x = (self.screen_width - (self.margin * 2)) - piece_width
-        y = self.margin * 2
-        pygame.draw.ellipse(self.screen, (255, 255, 255), (x, y, piece_width, piece_height))
-        border = 10
-        x += (border / 2)
-        y += (border / 2)
-        piece_width -= border
-        piece_height -= border
-        color_bg = ColorSettings.get_bg_color(color)
-        pygame.draw.ellipse(self.screen, color_bg, (x, y, piece_width, piece_height))
-        margin = 20
-        x += (margin / 2)
-        y += (margin / 2)
-        piece_width -= margin
-        piece_height -= margin
-        pygame.draw.ellipse(self.screen, color, (x, y, piece_width, piece_height))
                         
 
 class GameScene(Scene):
@@ -112,10 +98,10 @@ class GameScene(Scene):
         self.home_clicked = False
 
     def create_buttons(self):
-        home_button_colors = ButtonColors()
-        home_button = IconButton(self.screen, (15, 50), (70, 70), Images.HOME.value, ButtonColors(), self.handle_home_button)
-        surrender_button = IconButton(self.screen, (15, 125), (70, 70), Images.FLAG.value, ButtonColors(), self.handle_surrender_button)
-        play_again_button = IconButton(self.screen, (15, 125), (70, 70), Images.REFRESH.value, ButtonColors(), self.handle_play_again_button, visible = False)
+        button_colors = ButtonColors()
+        home_button = IconButton(self.screen, (15, self.height - 125), (70, 70), Images.HOME.value, button_colors, self.handle_home_button)
+        surrender_button = IconButton(self.screen, (15, 50), (70, 70), Images.FLAG.value, button_colors, self.handle_surrender_button)
+        play_again_button = IconButton(self.screen, (15, 50), (70, 70), Images.REFRESH.value, button_colors, self.handle_play_again_button, visible = False)
         self.buttons = [
             home_button,
             surrender_button,

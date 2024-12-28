@@ -5,6 +5,7 @@ import pygame
 from pygame.surface import Surface
 
 from Resources import Fonts
+import ui.GraphicUtils as GraphicUtils
 
 @dataclass
 class ButtonColors:
@@ -81,16 +82,6 @@ class Button:
         
         if self.colors.foreground_border:
             border_text_render = text_font.render(self.text, False, self.colors.foreground_border)
-            self.draw_text_border(border_text_render, x, y, 3)
+            GraphicUtils.draw_text_border(self.screen, border_text_render, x, y, 3)
 
         self.screen.blit(text_render, (x, y))
-        
-    def draw_text_border(self, text_render, x: float, y: float, border: float):
-        self.screen.blit(text_render, (x - border, y))
-        self.screen.blit(text_render, (x - border, y - border))
-        self.screen.blit(text_render, (x - border, y + border))
-        self.screen.blit(text_render, (x + border, y))
-        self.screen.blit(text_render, (x + border, y - border))
-        self.screen.blit(text_render, (x + border, y + border))
-        self.screen.blit(text_render, (x, y - border))
-        self.screen.blit(text_render, (x, y + border))
