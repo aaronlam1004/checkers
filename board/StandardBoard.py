@@ -93,6 +93,6 @@ class StandardBoard(Board):
                     move_dict[piece_hash] = moves
                 elif not capture_move and len(moves) > 0:
                     move_dict[piece_hash] = moves
-            else:
+            elif len(moves) > 0:
                 move_dict[piece_hash] = moves
         return move_dict

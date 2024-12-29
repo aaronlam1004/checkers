@@ -93,7 +93,7 @@ class Board:
                 self.players[self.player_bottom_id].pieces.append(piece)
                 self.board[bottom][col] = piece
 
-        # RED always goes first
+        # Player one always goes first
         self.turn = PlayerId.ONE
         
         # Get starting moves
@@ -104,6 +104,11 @@ class Board:
         """
         if not self.playing:
             return BoardState.IDLE
+        if self.turn == PlayerId.ONE and len(self.moves_dict) == 0:
+            return BoardState.BLACK_WIN
+        if self.turn == PlayerId.TWO and len(self.moves_dict) == 0:
+            return BoardState.RED_WIN
+        
         player_one = self.players[PlayerId.ONE]
         player_two = self.players[PlayerId.TWO]
         if player_one.captured == len(player_two.pieces):
