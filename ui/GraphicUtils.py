@@ -3,8 +3,8 @@ from typing import Tuple, Optional
 import pygame
 from pygame.surface import Surface
 
-from Settings import ColorSettings
 from Resources import Images
+from Settings import ColorSettings
 
 def draw_text_border(screen: Surface, text_surface: Surface, x: float, y: float, border_size: float):
     screen.blit(text_surface, (x - border_size, y))

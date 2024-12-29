@@ -8,25 +8,24 @@ from Settings import ColorSettings
 from Resources import Images
 from board.Board import Board, Player, PlayerId, Piece
 from scene.SceneHandler import SceneSignals
+from ui.Colors import Colors
 from ui.AudioPlayer import AudioPlayer
 import ui.GraphicUtils as GraphicUtils
 
 class BoardUI:
-    def __init__(self, screen: Surface, board: Board, dimensions: Tuple[int, int], offset: Tuple[int, int]):
+    def __init__(self, screen: Surface, board: Board, dimensions: Tuple[int, int], offset: Tuple[int, int], flipped: bool = False):
         self.options = {}
         self.screen = screen
         self.board = board
         self.dimensions = dimensions
         self.offset = offset
+        self.flipped = flipped
         
         self.available_pieces = []
         self.selected_piece = None
         self.selected_moves = {}
 
         self.drag_piece = False
-        
-    def update(self):
-        self.draw_game()
 
     def get_mouse_board_position(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -85,7 +84,7 @@ class BoardUI:
     def draw_board(self, scalars: Tuple[float, float]):
         color_white = ColorSettings.white_tile
         color_black = ColorSettings.black_tile
-        color_move = (90, 90, 90)
+        color_move = Colors.MOVE.value
         color_selected_piece = ColorSettings.selected_tile
 
         x, y = self.offset
@@ -132,16 +131,24 @@ class BoardUI:
     def draw_piece(self, piece: Piece, scalars: Tuple[float, float], color: Tuple[int, int, int]):
         scalar_x, scalar_y = scalars
         if piece.row != - 1 and piece.col != -1:
+            if self.selected_piece:
+                selected_row = self.selected_piece.row
+                selected_col = self.selected_piece.col
+            row = piece.row
+            col = piece.col
             margin = 8
             color_outline = (0, 0, 0)
             is_selected = False
-            if self.selected_piece and self.selected_piece.row == piece.row and self.selected_piece.col == piece.col and self.drag_piece:
+            if self.selected_piece and selected_row == row and selected_col == col and self.drag_piece:
                 x, y = pygame.mouse.get_pos()
                 x -= ((scalar_x - margin) / 2)
                 y -= ((scalar_y - margin) / 2)
                 is_selected = True
             else:
                 offset_x, offset_y = self.offset
-                x = (piece.col * scalar_x) + (offset_x + (margin / 2))
-                y = piece.row * scalar_y + (offset_y + (margin / 2))
+                x = (col * scalar_x) + (offset_x + (margin / 2))
+                y = row * scalar_y + (offset_y + (margin / 2))
             GraphicUtils.draw_piece(self.screen, (x, y), (scalar_x - 8, scalar_y - 8), color, outline_color=color_outline, bg_size=margin, outline_size=margin, is_king=piece.is_king)
+
+    def update(self):
+        self.draw_game()

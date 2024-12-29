@@ -28,7 +28,7 @@ class BoardState(IntEnum):
     BLACK_WIN =  2
 
 class Board:
-    def __init__(self):
+    def __init__(self, flipped: bool = False):
         """
         """
         self.size = 8
@@ -37,6 +37,8 @@ class Board:
         self.blitz_mode = False
         self.player_loss_timeout_s = 60
         self.playing = False
+        self.player_bottom_id = PlayerId.ONE if not flipped else PlayerId.TWO
+        self.player_top_id = PlayerId.TWO if not flipped else PlayerId.ONE
 
     def enable_blitz_mode(self):
         """
@@ -57,6 +59,8 @@ class Board:
         self.setup()
 
     def set_idle(self):
+        """
+        """
         self.playing = False
 
     def setup(self):
@@ -71,9 +75,6 @@ class Board:
         """
         Initializes standard game
         """
-        # RED always goes first
-        self.turn = PlayerId.ONE
-        
         # Setup players
         self.players = {
             PlayerId.ONE: Player(PlayerId.ONE, []),
@@ -83,15 +84,18 @@ class Board:
         # Only place pieces on the first 3 rows
         for row in range(3):
             for col in range((row + 1) % 2, self.size, 2):
-                piece = Piece(row, col, PlayerId.TWO)
-                self.players[PlayerId.TWO].pieces.append(piece)
+                piece = Piece(row, col, self.player_top_id)
+                self.players[self.player_top_id].pieces.append(piece)
                 self.board[row][col] = piece
             bottom = (self.size - 1) - row
             for col in range((bottom + 1) % 2, self.size, 2):
-                piece = Piece(bottom, col, PlayerId.ONE)
-                self.players[PlayerId.ONE].pieces.append(piece)
+                piece = Piece(bottom, col, self.player_bottom_id)
+                self.players[self.player_bottom_id].pieces.append(piece)
                 self.board[bottom][col] = piece
 
+        # RED always goes first
+        self.turn = PlayerId.ONE
+        
         # Get starting moves
         self.moves_dict = self.get_all_moves()
 
@@ -143,12 +147,12 @@ class Board:
     def get_piece_capture_moves(self, piece: Piece):
         """
         """
-        return [], False
+        return {}, False
     
     def get_piece_moves(self, piece: Piece):
         """
         """
-        return [], False
+        return {}, False
 
     def get_all_moves(self):
         """

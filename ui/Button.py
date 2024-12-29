@@ -13,25 +13,27 @@ class ButtonColors:
     foreground: Tuple[int, int, int] = (0, 0, 0)
     highlight: Optional[Tuple[int, int, int]] = None
     border: Optional[Tuple[int, int, int]] = None
+    highlight_border: Optional[Tuple[int, int, int]] = None
     foreground_border: Optional[Tuple[int, int, int]] = None
-    
 
 class Button:
     def __init__(self, screen: Surface, position: Tuple[int, int], dimension: Tuple[int, int],
                  text: str, button_colors: ButtonColors, on_click: Callable[[None], None],
-                 visible: bool = True, border_size: int = 8):
+                 visible: bool = True, border_size: float = 8, border_radius: float = 20):
         self.screen = screen
         self.x, self.y = position
         self.width, self.height = dimension
         self.text = text
         self.on_click = on_click
         self.visible = visible
+        self.border_radius = border_radius
         self.border_size = border_size
         self.set_colors(button_colors)
 
     def set_colors(self, button_colors: ButtonColors):
         self.colors = button_colors
         self.color = self.colors.background
+        self.border_color = self.colors.border
 
     def set_text(self, text: str):
         self.text = text
@@ -48,9 +50,13 @@ class Button:
     def hover(self, mouse_x: int, mouse_y: int):
         if self.visible:
             if self.in_area(mouse_x, mouse_y):
-                self.color = self.colors.highlight
+                if self.colors.highlight:
+                    self.color = self.colors.highlight
+                if self.colors.highlight_border:
+                    self.border_color = self.colors.highlight_border
             else:
                 self.color = self.colors.background
+                self.border_color = self.colors.border
 
     def click(self, mouse_x: int, mouse_y: int):
         if self.visible:
@@ -63,13 +69,13 @@ class Button:
             y = self.y
             width = self.width
             height = self.height
-            if self.colors.border:
-                pygame.draw.rect(self.screen, self.colors.border, (x, y, width, height), border_radius=3)
+            if self.border_color:
+                pygame.draw.rect(self.screen, self.border_color, (x, y, width, height), border_radius=self.border_radius)
                 x += (self.border_size / 2)
                 y += (self.border_size / 2)
                 width -= self.border_size
                 height -= self.border_size
-            pygame.draw.rect(self.screen, self.color, (x, y, width, height), border_radius=3)
+            pygame.draw.rect(self.screen, self.color, (x, y, width, height), border_radius=self.border_radius)
             self.draw_text()
 
     def draw_text(self):

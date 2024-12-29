@@ -3,14 +3,16 @@ from dataclasses import dataclass
 
 import pygame
 from pygame.surface import Surface
+from pygame.event import Event
 
 from ui.Button import Button
+from ui.Colors import Colors
 
 @dataclass
 class PopupColors:
-    background: Tuple[int, int, int] = (20, 20, 20)
-    foreground: Tuple[int, int, int] = (255, 255, 255)
-    border: Tuple[int, int, int] = (255, 255, 255)
+    background: Tuple[int, int, int] = Colors.BLACK.value
+    foreground: Tuple[int, int, int] = Colors.WHITE.value,
+    border: Tuple[int, int, int] = Colors.WHITE.value
 
 class Popup:
     def __init__(self, screen: Surface, title: str = "", border_size: int = 16):
@@ -22,6 +24,8 @@ class Popup:
         self.screen_width, self.screen_height = self.screen.get_rect().size
         self.width = self.screen_width - (self.margin * 2)
         self.height = (self.screen_height / 2) - (self.margin * 2)
+        self.x = (self.screen_width - self.width) / 2
+        self.y = (self.screen_height - self.height) / 2
         self.colors = PopupColors()
         self.border_size = border_size
 
@@ -34,9 +38,16 @@ class Popup:
     def hide(self):
         self.visible = False
 
-    def handle_event(self, event):
+    def handle_event(self, event: Event):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
         if self.visible:
-            if event.type == pygame.KEYUP:
+            if event.type == pygame.MOUSEMOTION:
+                for button in self.buttons:
+                    button.hover(mouse_x, mouse_y)
+            elif event.type == pygame.MOUSEBUTTONUP:
+                for button in self.buttons:
+                    button.click(mouse_x, mouse_y)
+            elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_ESCAPE:
                     self.hide()
 
@@ -48,12 +59,12 @@ class Popup:
     def draw_background(self):
         trans_surface = pygame.Surface((self.screen_width, self.screen_height))
         trans_surface.set_alpha(128)
-        trans_surface.fill((0, 0, 0))
+        trans_surface.fill(Colors.BLACK.value)
         self.screen.blit(trans_surface, (0, 0))
             
     def draw_popup(self):
-        x = ((self.screen_width - self.width) / 2)
-        y = ((self.screen_height - self.height) / 2)
+        x = self.x
+        y = self.y
         width = self.width
         height = self.height
         if self.border_size > 0:

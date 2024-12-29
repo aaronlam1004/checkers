@@ -7,8 +7,8 @@ from ui.Colors import Colors
 SETTINGS_JSON = os.path.join(os.path.dirname(__file__), "settings.json")
 
 class ColorSettings:
-    player_one = (183, 63, 52)
-    player_two = (43, 42, 63)
+    player_one = Colors.UI_RED.value
+    player_two = Colors.UI_BLACK.value
     white_tile = (236, 236, 208)
     black_tile = (114, 149, 81)
     selected_tile = (255, 235, 59)

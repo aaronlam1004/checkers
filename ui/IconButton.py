@@ -8,9 +8,9 @@ from ui.Button import Button, ButtonColors
 class IconButton(Button):
     def __init__(self, screen: Surface, position: Tuple[int, int], dimension: Tuple[int, int],
                  icon: str, button_colors: ButtonColors, on_click: Callable[[None], None],
-                 visible: bool = True):
+                 visible: bool = True, border_size: float = 8, border_radius: float = 20):
         self.icon = icon
-        super().__init__(screen, position, dimension, "", button_colors, on_click, visible)
+        super().__init__(screen, position, dimension, "", button_colors, on_click, visible=visible, border_size=border_size, border_radius=border_radius)
 
     def draw(self):
         super().draw()
