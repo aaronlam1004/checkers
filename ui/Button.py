@@ -18,7 +18,7 @@ class ButtonColors:
 
 class Button:
     def __init__(self, screen: Surface, position: Tuple[int, int], dimension: Tuple[int, int],
-                 text: str, button_colors: ButtonColors, on_click: Callable[[None], None],
+                 text: str, button_colors: ButtonColors, on_click: Optional[Callable[[None], None]],
                  visible: bool = True, border_size: float = 8, border_radius: float = 20):
         self.screen = screen
         self.x, self.y = position
@@ -61,7 +61,8 @@ class Button:
     def click(self, mouse_x: int, mouse_y: int):
         if self.visible:
             if self.in_area(mouse_x, mouse_y):
-                self.on_click()
+                if self.on_click:
+                    self.on_click()
 
     def draw(self):
         if self.visible:

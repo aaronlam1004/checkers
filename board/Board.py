@@ -46,11 +46,11 @@ class Board:
         if self.num_turns == 0:
             self.blitz_mode = True
 
-    def disable_blitz_mode(self):
-        """
-        """
+    def enable_all_kings_mode(self):
         if self.num_turns == 0:
-            self.blitz_mode = False
+            for player in self.players.values():
+                for piece in player.pieces:
+                    piece.is_king = True
 
     def set_size(self, size: int):
         """

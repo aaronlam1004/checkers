@@ -12,6 +12,7 @@ from ui.Constants import UI_BUTTON_COLORS
 from ui.Button import ButtonColors
 from ui.IconButton import Button, IconButton
 from ui.BoardUI import BoardUI
+from ui.OnlineBoardUI import OnlineBoardUI
 from ui.Popup import Popup
 from ui.Colors import Colors
 import ui.GraphicUtils as GraphicUtils
@@ -36,8 +37,8 @@ class GameOverPopup(Popup):
         y = self.y + (self.height / 2) - button_height
         play_again_button = Button(self.screen, (x, y), (button_width , button_height), "PLAY AGAIN", UI_BUTTON_COLORS, self.handle_play_again_button)
         y += button_height + 10
-        quit_button = Button(self.screen, (x, y), (button_width, button_height), "QUIT", UI_BUTTON_COLORS, self.handle_quit_button)
-        self.buttons = [play_again_button, quit_button]
+        close_button = Button(self.screen, (x, y), (button_width, button_height), "CLOSE", UI_BUTTON_COLORS, self.handle_close_button)
+        self.buttons = [play_again_button, close_button]
 
     # @override
     def hide(self):
@@ -48,8 +49,8 @@ class GameOverPopup(Popup):
         self.hide()
         self.parent.board.setup()
 
-    def handle_quit_button(self):
-        self.parent.handle_home_button()
+    def handle_close_button(self):
+        self.hide()
 
     # @override
     def draw_popup(self):
@@ -74,7 +75,7 @@ class GameOverPopup(Popup):
         x = self.margin + ((self.width - text_width) / 2)
         y = self.y - text_height
 
-        border_text_render = title_font.render(text, False, (255, 255, 255))
+        border_text_render = title_font.render(text, False, Colors.WHITE.value)
         GraphicUtils.draw_text_border(self.screen, border_text_render, x, y, 10)
         inside_border_text_render = title_font.render(text, False, ColorSettings.get_bg_color(player_color))
         GraphicUtils.draw_text_border(self.screen, inside_border_text_render, x, y, 4)
@@ -82,13 +83,17 @@ class GameOverPopup(Popup):
                         
 
 class GameScene(Scene):
-    def __init__(self, screen: Surface, board: Board, flipped: bool = False):
+    def __init__(self, screen: Surface, board: Board, flipped: bool = False, is_online: bool = False):
         self.id = SceneId.GAME
         self.options = {}
         self.screen = screen
         self.width, self.height = screen.get_rect().size
         self.board = board
-        self.board_ui = BoardUI(self.screen, board, (600, 600), (100, 50))
+        self.is_online = is_online
+        if self.is_online:
+            self.board_ui = OnlineBoardUI(self.screen, board, (600, 600), (100, 50))
+        else:
+            self.board_ui = BoardUI(self.screen, board, (600, 600), (100, 50))
         self.flipped = flipped
         self.create_buttons()
 

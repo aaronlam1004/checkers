@@ -12,10 +12,6 @@ class StandardBoard(Board):
         if self.num_turns == 0:
             self.force_capture = True
 
-    def disable_force_capture(self):
-        if self.num_turns == 0:
-            self.force_capture = False
-
     # @override
     def get_piece_capture_moves(self, piece: Piece):
         """

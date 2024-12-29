@@ -9,9 +9,79 @@ from scene.Scene import Scene, SceneId
 from scene.SceneHandler import SceneSignals
 from ui.Constants import UI_BUTTON_COLORS
 from ui.Button import Button
+from ui.CheckButton import CheckButton
 from ui.Colors import Colors
+from ui.Popup import Popup
 from ui.Animator import Animator
 import ui.GraphicUtils as GraphicUtils
+
+class NewGamePopup(Popup):
+    def __init__(self, screen: Surface, parent: Scene):
+        self.parent = parent
+        self.player_win_id = -1
+        super().__init__(screen)
+        self.height = (self.screen_height * 0.75) - (self.margin * 2)
+        self.y = (self.screen_height - self.height) * 0.75
+        self.create_buttons()
+
+    def set_player_win(self, player_win_id: int):
+        self.player_win_id = player_win_id
+
+    def create_buttons(self):
+        button_margin = 25
+        button_width = self.width - (button_margin * 2)
+        button_height = 50
+        x = self.margin + (button_margin)
+
+        check_y = self.y + (self.height / 4) - button_height
+        blitz_check_button = CheckButton(self.screen, (x, check_y), (button_width, button_height), "BLITZ MODE", UI_BUTTON_COLORS, selected=True)
+        check_y += button_height + 10
+        force_capture_check_button = CheckButton(self.screen, (x, check_y), (button_width, button_height), "FORCE CAPTURE", UI_BUTTON_COLORS)      
+        check_y += button_height + 10
+        all_kings_check_button = CheckButton(self.screen, (x, check_y), (button_width, button_height), "ALL KINGS", UI_BUTTON_COLORS)
+        
+        y = self.y + ((self.height * 2) / 3)
+        start_button = Button(self.screen, (x, y), (button_width , button_height), "START", UI_BUTTON_COLORS, self.handle_start_button)
+        y += button_height + 10
+        close_button = Button(self.screen, (x, y), (button_width, button_height), "CLOSE", UI_BUTTON_COLORS, self.handle_close_button)
+        self.check_buttons = {
+            "blitz": blitz_check_button,
+            "force_capture": force_capture_check_button,
+            "all_kings": all_kings_check_button
+        }
+        self.buttons = [
+            blitz_check_button,
+            force_capture_check_button,
+            all_kings_check_button,
+            start_button,
+            close_button
+        ]
+
+    def handle_start_button(self):
+        self.hide()
+        self.parent.play_clicked = True
+
+    def handle_close_button(self):
+        self.hide()
+
+    # @override
+    def draw_popup(self):
+        super().draw_popup()
+        self.draw_title()
+
+    def draw_title(self):
+        font_size = int((self.width - self.border_size) / 10)
+        text = f"New Game"
+        title_font = pygame.font.Font(Fonts.STAR_BORN.value, font_size)
+        text_render = title_font.render(text, False, Colors.BLACK.value)
+        text_width, text_height = text_render.get_rect().size
+        
+        x = self.margin + ((self.width - text_width) / 2)
+        y = self.y - text_height
+
+        border_text_render = title_font.render(text, False, Colors.WHITE.value)
+        GraphicUtils.draw_text_border(self.screen, border_text_render, x, y, 10)
+        self.screen.blit(text_render, (x, y))
 
 class HomeScene(Scene):
     def __init__(self, screen: Surface):
@@ -29,6 +99,9 @@ class HomeScene(Scene):
 
         # Animations
         self.create_animations()
+
+        # Popup
+        self.popup_new_game = NewGamePopup(self.screen, self)
 
     def create_buttons(self):
         button_width = self.width / 2
@@ -57,7 +130,7 @@ class HomeScene(Scene):
         self.piece_two_animator.start()
         
     def handle_play_button(self):
-        self.play_clicked = True
+        self.popup_new_game.show()
         
     def handle_quit_button(self):
         self.quit_clicked = True
@@ -65,24 +138,30 @@ class HomeScene(Scene):
     # @override
     def handle_event(self, event):
         if self.play_clicked:
+            data = {
+                key: check_button.selected for key, check_button in self.popup_new_game.check_buttons.items()
+            }
             self.play_clicked = False
-            return SceneSignals.PLAY, None
+            return SceneSignals.PLAY, data
         if self.quit_clicked:
             self.quit_clicked = False
             return SceneSignals.QUIT, None
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        if event.type == pygame.MOUSEMOTION:
-            for button in self.buttons:
-                button.hover(mouse_x, mouse_y)
-        elif event.type == pygame.MOUSEBUTTONUP:
-            for button in self.buttons:
-                button.click(mouse_x, mouse_y)
-        elif event.type == pygame.KEYUP:
-            if event.key == pygame.K_ESCAPE:
-                self.handle_quit_button()
+        if self.popup_new_game.visible:
+            self.popup_new_game.handle_event(event)
+        else:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            if event.type == pygame.MOUSEMOTION:
+                for button in self.buttons:
+                    button.hover(mouse_x, mouse_y)
+            elif event.type == pygame.MOUSEBUTTONUP:
+                for button in self.buttons:
+                    button.click(mouse_x, mouse_y)
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_ESCAPE:
+                    self.handle_quit_button()
         return SceneSignals.NONE, None
 
-    def draw(self):
+    def draw(self):       
         offset_x = self.title_width / 4
         self.screen.fill(Colors.BLACK.value)
         self.piece_one_animator.animate(offset_x=offset_x, color=ColorSettings.player_one)
@@ -92,6 +171,7 @@ class HomeScene(Scene):
         self.subtitle_animator.animate(offset_y=self.title_height)
         for button in self.buttons:
             button.draw()
+        self.popup_new_game.draw()
 
     def get_title_size(self):
         font_size = int(self.width / 8)
