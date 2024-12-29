@@ -6,6 +6,14 @@ from pygame.surface import Surface
 from Resources import Images
 from Settings import ColorSettings
 
+def draw_background(screen: Surface):
+    background = pygame.image.load(Images.BACKGROUND.value)
+    width, height = background.get_size()
+    width *= 2
+    height *= 2
+    background = pygame.transform.scale(background, (width, height))
+    screen.blit(background, (0, 0, width, height))
+
 def draw_text_border(screen: Surface, text_surface: Surface, x: float, y: float, border_size: float):
     screen.blit(text_surface, (x - border_size, y))
     screen.blit(text_surface, (x - border_size, y - border_size))

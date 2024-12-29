@@ -163,7 +163,7 @@ class HomeScene(Scene):
 
     def draw(self):       
         offset_x = self.title_width / 4
-        self.screen.fill(Colors.BLACK.value)
+        GraphicUtils.draw_background(self.screen)
         self.piece_one_animator.animate(offset_x=offset_x, color=ColorSettings.player_one)
         offset_x += self.piece_size + 10
         self.piece_two_animator.animate(offset_x=offset_x, color=ColorSettings.player_two)

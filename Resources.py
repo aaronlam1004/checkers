@@ -19,7 +19,8 @@ class Fonts(Enum):
     BLACK_BIRD = os.path.join(FONTS, "Black Bird.otf")
 
 class Images(Enum):
-    KING    = os.path.join(IMGS, "king.png")
-    HOME    = os.path.join(IMGS, "home.png")
-    FLAG    = os.path.join(IMGS, "flag.png")
-    REFRESH = os.path.join(IMGS, "refresh.png")
+    KING       = os.path.join(IMGS, "king.png")
+    HOME       = os.path.join(IMGS, "home.png")
+    FLAG       = os.path.join(IMGS, "flag.png")
+    REFRESH    = os.path.join(IMGS, "refresh.png")
+    BACKGROUND = os.path.join(IMGS, "background.png")

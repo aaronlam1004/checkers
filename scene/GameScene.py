@@ -149,7 +149,7 @@ class GameScene(Scene):
         return SceneSignals.NONE, None
 
     def draw(self):
-        self.screen.fill(Colors.BLACK.value)
+        GraphicUtils.draw_background(self.screen)
         self.board_ui.draw()
         self.draw_status()
 
