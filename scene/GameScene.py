@@ -123,13 +123,13 @@ class GameScene(Scene):
 
     # @override
     def handle_event(self, event):
-        mouse_x, mouse_y = pygame.mouse.get_pos()
         if self.home_clicked:
             self.home_clicked = False
             return SceneSignals.HOME, None
         if self.popup_game_over.visible:
             self.popup_game_over.handle_event(event)
         else:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
             if event.type == pygame.MOUSEMOTION:
                 for button in self.buttons:
                     button.hover(mouse_x, mouse_y)

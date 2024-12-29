@@ -30,7 +30,7 @@ if __name__ == "__main__":
         if signal_id == SceneSignals.QUIT:
             break
         elif signal_id == SceneSignals.PLAY:
-            flipped = random.choice([True, False])
+            flipped = True if random.randint(0, 1) else False
             board = StandardBoard(flipped=flipped)
             board.setup()
             # board.set_size(10)

@@ -64,13 +64,13 @@ class HomeScene(Scene):
         
     # @override
     def handle_event(self, event):
-        mouse_x, mouse_y = pygame.mouse.get_pos()
         if self.play_clicked:
             self.play_clicked = False
             return SceneSignals.PLAY, None
-        elif self.quit_clicked:
+        if self.quit_clicked:
             self.quit_clicked = False
             return SceneSignals.QUIT, None
+        mouse_x, mouse_y = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEMOTION:
             for button in self.buttons:
                 button.hover(mouse_x, mouse_y)
