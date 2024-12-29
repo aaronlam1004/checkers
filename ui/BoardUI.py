@@ -13,13 +13,12 @@ from ui.AudioPlayer import AudioPlayer
 import ui.GraphicUtils as GraphicUtils
 
 class BoardUI:
-    def __init__(self, screen: Surface, board: Board, dimensions: Tuple[int, int], offset: Tuple[int, int], flipped: bool = False):
+    def __init__(self, screen: Surface, board: Board, dimensions: Tuple[int, int], offset: Tuple[int, int]):
         self.options = {}
         self.screen = screen
         self.board = board
         self.dimensions = dimensions
         self.offset = offset
-        self.flipped = flipped
         
         self.available_pieces = []
         self.selected_piece = None

@@ -132,7 +132,7 @@ class Board:
     def check_can_promote(self, row: int, col: int):
         """
         """
-        if self.turn == PlayerId.ONE:
+        if self.turn == self.player_bottom_id:
             return row == 0
         else:
             return row == self.size - 1

@@ -1,4 +1,5 @@
 import pygame
+import random
 from enum import IntEnum
 
 from HotLoader import HotLoader
@@ -29,12 +30,13 @@ if __name__ == "__main__":
         if signal_id == SceneSignals.QUIT:
             break
         elif signal_id == SceneSignals.PLAY:
-            board = StandardBoard()
+            flipped = random.choice([True, False])
+            board = StandardBoard(flipped=flipped)
             board.setup()
             # board.set_size(10)
             board.enable_blitz_mode()
             # board.enable_force_capture()
-            game_scene = GameScene(window.screen, board)
+            game_scene = GameScene(window.screen, board, flipped=flipped)
             SceneHandler.set_scene(game_scene)
         elif signal_id == SceneSignals.HOME:
             game_scene = None

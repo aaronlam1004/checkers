@@ -82,13 +82,14 @@ class GameOverPopup(Popup):
                         
 
 class GameScene(Scene):
-    def __init__(self, screen: Surface, board: Board):
+    def __init__(self, screen: Surface, board: Board, flipped: bool = False):
         self.id = SceneId.GAME
         self.options = {}
         self.screen = screen
         self.width, self.height = screen.get_rect().size
         self.board = board
-        self.board_ui = BoardUI(self.screen, board, (600, 600), (100, 50), flipped=True)
+        self.board_ui = BoardUI(self.screen, board, (600, 600), (100, 50))
+        self.flipped = flipped
         self.create_buttons()
 
         # Popup
@@ -167,16 +168,16 @@ class GameScene(Scene):
 
         border_radius=20
         border = 8
-        status_y = bottom_y
+        status_y = bottom_y if not self.flipped else top_y
         player_color = ColorSettings.player_one
         if self.board.turn == PlayerId.TWO:
-            status_y = top_y
+            status_y = top_y if not self.flipped else bottom_y
             player_color = ColorSettings.player_two
         pygame.draw.rect(self.screen, Colors.WHITE.value, (x, status_y, status_width, status_height), border_top_left_radius=border_radius, border_bottom_left_radius=border_radius)
         pygame.draw.rect(self.screen, player_color, (x + (border / 2), status_y + (border / 2), status_width - border, status_height - border), border_top_left_radius=border_radius, border_bottom_left_radius=border_radius)
-        self.draw_player_text(status_width, status_height, top_y, bottom_y)
+        self.draw_players_text(status_width, status_height, top_y, bottom_y)
 
-    def draw_player_text(self, status_width: float, status_height: float, top_y: float, bottom_y: float):
+    def draw_players_text(self, status_width: float, status_height: float, top_y: float, bottom_y: float):
         for player in self.board.players.values():
             draw_text = f"{player.id + 1}"
             if self.board.blitz_mode:
@@ -195,11 +196,13 @@ class GameScene(Scene):
             text_render = text_font.render(draw_text, False, text_color)
             text_width, text_height = text_render.get_rect().size
             text_x = (self.width - (status_width / 2) - (text_width / 2.5))
+            player_one_y = bottom_y if not self.flipped else top_y
+            player_two_y = top_y if not self.flipped else bottom_y
             if player.id == PlayerId.ONE:
-                text_y = bottom_y + (text_height / 2)
+                text_y = player_one_y + (text_height / 2)
                 self.screen.blit(text_render, (text_x, text_y))
             else:
-                text_y = top_y + (text_height / 2)
+                text_y = player_two_y + (text_height / 2)
                 self.screen.blit(text_render, (text_x, text_y))
                 
     def update(self):
