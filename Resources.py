@@ -15,7 +15,8 @@ class Sounds(Enum):
 
 
 class Fonts(Enum):
-    STAR_BORN = os.path.join(FONTS, "Starborn.otf")
+    STAR_BORN  = os.path.join(FONTS, "Starborn.otf")
+    BLACK_BIRD = os.path.join(FONTS, "Black Bird.otf")
 
 class Images(Enum):
     KING    = os.path.join(IMGS, "king.png")

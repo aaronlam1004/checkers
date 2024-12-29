@@ -31,7 +31,7 @@ class HomeScene(Scene):
         button_width = self.width / 2
         button_height = 50
         x = (self.width / 2) - (button_width / 2)
-        y = (self.height / 2) - (button_height / 2)
+        y = (self.height / 2) + (button_height / 2)
         play_button = Button(self.screen, (x, y), (button_width, button_height), "PLAY", UI_BUTTON_COLORS, self.handle_play_button)
         y += play_button.height + 10
         quit_button = Button(self.screen, (x, y), (button_width, button_height), "QUIT", UI_BUTTON_COLORS, self.handle_quit_button)
@@ -66,7 +66,8 @@ class HomeScene(Scene):
 
     def draw(self):
         self.screen.fill(Colors.BLACK.value)
-        self.draw_title()
+        _, title_height = self.draw_title()
+        self.draw_subtitle(title_height)
         for button in self.buttons:
             button.draw()
        
@@ -90,9 +91,23 @@ class HomeScene(Scene):
         GraphicUtils.draw_piece(self.screen, (x + (text_width / 4), self.piece_one_y), (175, 175), ColorSettings.player_one, outline_color=Colors.WHITE.value)
         GraphicUtils.draw_piece(self.screen, (x + (text_width / 4) + 185, self.piece_two_y), (175, 175), ColorSettings.player_two, outline_color=Colors.WHITE.value)
 
-        border_text_render = title_font.render("Checkers", False, (255, 255, 255))
+        border_text_render = title_font.render("Checkers", False, Colors.WHITE.value)
         GraphicUtils.draw_text_border(self.screen, border_text_render, x, y, 5)
-        self.screen.blit(text_render, (x, y))   
+        self.screen.blit(text_render, (x, y))
+        return text_width, text_height
+
+    def draw_subtitle(self, offset_y: float):
+        font_size = int(self.width / 8)
+        subtitle_font = pygame.font.Font(Fonts.BLACK_BIRD.value, font_size)
+        text_render = subtitle_font.render("Blitz", False, Colors.YELLOW.value)
+        text_width, text_height = text_render.get_rect().size
+
+        x = (self.width / 2)
+        y = text_height + offset_y
+
+        border_text_render = subtitle_font.render("Blitz", False, Colors.WHITE.value)
+        GraphicUtils.draw_text_border(self.screen, border_text_render, x, y, 5)
+        self.screen.blit(text_render, (x, y))
         
     def update(self):
         self.draw()
