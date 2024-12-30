@@ -20,3 +20,9 @@ To play locally, all you need to do is launch the game using the command
 **On Windows:** `python checkers.py`
 
 **On Unix/Mac:** `python3 checkers.py`
+
+## Music Credits
+- **Relaxed Day - futuristic chill** by *Sekoura*
+- **Lofi Song - Backyard** by *Lofium*
+- **Once In Paris** by *Pumpupthemind*
+- **Relaxed Vlog (Night Street)** by *Ashot-Danielyan-Composer*
