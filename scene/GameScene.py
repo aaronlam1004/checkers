@@ -12,7 +12,6 @@ from ui.Constants import UI_BUTTON_COLORS
 from ui.Button import ButtonColors
 from ui.IconButton import Button, IconButton
 from ui.BoardUI import BoardUI
-from ui.OnlineBoardUI import OnlineBoardUI
 from ui.Popup import Popup
 from ui.Colors import Colors
 import ui.GraphicUtils as GraphicUtils
