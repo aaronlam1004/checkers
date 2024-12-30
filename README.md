@@ -3,6 +3,7 @@
 Implementation of the [checkers/draughts](https://en.wikipedia.org/wiki/Draughts) game made in [PyGame](https://www.pygame.org/) framework/engine.
 
 ## Installing
+
 This was built on **Windows** so it might not work on MacOS or Linux.
 
 Python is required to run and play the game as of now. This was created using [Python 3.7.2](https://www.python.org/downloads/release/python-372/) 
@@ -20,6 +21,12 @@ To play locally, all you need to do is launch the game using the command
 **On Windows:** `python checkers.py`
 
 **On Unix/Mac:** `python3 checkers.py`
+
+## `settings.json`
+
+You can update this file to change properties of the game (for now colors and music).
+
+The game will hot reload when there are any changes to the `settings.json` file.
 
 ## Music Credits
 - **Relaxed Day - futuristic chill** by *Sekoura*
