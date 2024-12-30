@@ -18,9 +18,9 @@ Requirements are **PyGame** and **Pillow** which can be installed using the comm
 
 To play locally, all you need to do is launch the game using the command 
 
-**On Windows:** `python checkers.py`
+**On Windows:** `python game.py`
 
-**On Unix/Mac:** `python3 checkers.py`
+**On Unix/Mac:** `python3 game.py`
 
 ## `settings.json`
 

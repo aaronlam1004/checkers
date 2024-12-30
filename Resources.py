@@ -1,9 +1,14 @@
 import os
+import sys
 from enum import Enum
 
 import pygame
 
-RESOURCE_PATH = os.path.join(os.path.dirname(__file__), "resources")
+try:
+    RESOURCE_PATH = os.path.join(sys._MEIPASS, "resources")
+except:
+    RESOURCE_PATH = os.path.join(os.path.dirname(__file__), "resources")
+    
 AUDIO = os.path.join(RESOURCE_PATH, "audio")
 FONTS = os.path.join(RESOURCE_PATH, "fonts")
 IMGS = os.path.join(RESOURCE_PATH, "imgs")

@@ -147,6 +147,7 @@ class GameScene(Scene):
         GraphicUtils.draw_background(self.screen)
         self.board_ui.draw()
         self.draw_status()
+        self.draw_players_num_pieces()
 
         _, surrender_button, play_again_button = self.buttons
         if self.board.state() == BoardState.IDLE:
@@ -204,6 +205,36 @@ class GameScene(Scene):
             else:
                 text_y = player_two_y + (text_height / 2)
                 self.screen.blit(text_render, (text_x, text_y))
+
+    def draw_players_num_pieces(self):
+        piece_width, piece_height = (75, 75)
+        y = self.height / 3
+        player_id = PlayerId.TWO if not self.flipped else PlayerId.ONE
+        self.draw_player_num_pieces(player_id, y)
+        player_id = PlayerId.ONE if not self.flipped else PlayerId.TWO
+        y += piece_height + 10
+        self.draw_player_num_pieces(player_id, y)
+
+    def draw_player_num_pieces(self, player_id: PlayerId, y: float):
+        piece_width, piece_height = (75, 75)
+        player_color = ColorSettings.player_one
+        if player_id == PlayerId.TWO:
+            player_color = ColorSettings.player_two
+        GraphicUtils.draw_piece(self.screen, (10, y), (piece_width, piece_height), player_color, outline_color=Colors.WHITE.value, bg_size=10, outline_size=5)
+        
+        font_size = int(piece_width / 2)
+        text_font = pygame.font.Font(Fonts.STAR_BORN.value, font_size)
+        text_color = ColorSettings.get_contrast_color(player_color)
+
+        if player_id == PlayerId.ONE:
+            opp_player_id = PlayerId.TWO
+        else:
+            opp_player_id = PlayerId.ONE
+            
+        player = self.board.players[opp_player_id]
+        text_render = text_font.render(str(len(player.pieces) - player.captured), False, text_color)
+        text_width, text_height = text_render.get_rect().size
+        self.screen.blit(text_render, (10 + ((piece_width - text_width) / 2), y + ((piece_height - text_height) / 2), text_width, text_height))
                 
     def update(self):
         self.draw()

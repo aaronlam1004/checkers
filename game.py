@@ -35,7 +35,8 @@ if __name__ == "__main__":
         if signal_id == SceneSignals.QUIT:
             break
         elif signal_id == SceneSignals.PLAY:
-            board = StandardBoard()
+            flipped = random.choice([True, False])
+            board = StandardBoard(flipped=flipped)
             board.setup()
             if data.get("blitz", True):
                 board.enable_blitz_mode()
@@ -43,7 +44,7 @@ if __name__ == "__main__":
                 board.enable_force_capture()
             if data.get("all_kings", False):
                 board.enable_all_kings_mode()
-            game_scene = GameScene(window.screen, board)
+            game_scene = GameScene(window.screen, board, flipped=flipped)
             SceneHandler.set_scene(game_scene)
         elif signal_id == SceneSignals.HOME:
             game_scene = None

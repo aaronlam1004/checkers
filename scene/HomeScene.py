@@ -5,6 +5,7 @@ from pygame.surface import Surface
 
 from Resources import Fonts
 from Settings import ColorSettings
+from Version import VERSION_STR
 from scene.Scene import Scene, SceneId
 from scene.SceneHandler import SceneSignals
 from ui.Constants import UI_BUTTON_COLORS
@@ -171,6 +172,7 @@ class HomeScene(Scene):
         self.piece_two_animator.animate(offset_x=offset_x, color=ColorSettings.player_two)
         self.draw_title()
         self.subtitle_animator.animate(offset_y=self.title_height)
+        self.draw_version()
         for button in self.buttons:
             button.draw()
         self.popup_new_game.draw()
@@ -194,10 +196,8 @@ class HomeScene(Scene):
         title_font = pygame.font.Font(Fonts.STAR_BORN.value, font_size)
         text_render = title_font.render("Checkers", False, Colors.UI_RED.value)
         text_width, text_height = text_render.get_rect().size
-        
         x = (self.width / 10)
         y = text_height
-
         border_text_render = title_font.render("Checkers", False, Colors.WHITE.value)
         GraphicUtils.draw_text_border(self.screen, border_text_render, x, y, 5)
         self.screen.blit(text_render, (x, y))
@@ -215,6 +215,13 @@ class HomeScene(Scene):
         border_text_render = subtitle_font.render("Blitz", False, Colors.WHITE.value)
         GraphicUtils.draw_text_border(self.screen, border_text_render, x, y, 5)
         self.screen.blit(text_render, (x, y))
+
+    def draw_version(self):
+        font_size = 20
+        version_font = pygame.font.Font(Fonts.STAR_BORN.value, font_size)
+        text_render = version_font.render(VERSION_STR, False, Colors.YELLOW.value)
+        text_width, text_height = text_render.get_rect().size
+        self.screen.blit(text_render, (self.width - text_width - 10, self.height - text_height - 10))
         
     def update(self):
         self.draw()
