@@ -24,3 +24,4 @@ class Images(Enum):
     FLAG       = os.path.join(IMGS, "flag.png")
     REFRESH    = os.path.join(IMGS, "refresh.png")
     BACKGROUND = os.path.join(IMGS, "background.png")
+    ICON       = os.path.join(IMGS, "icon.png")
