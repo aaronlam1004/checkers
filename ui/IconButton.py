@@ -10,7 +10,7 @@ class IconButton(Button):
                  icon: str, button_colors: ButtonColors, on_click: Callable[[None], None],
                  visible: bool = True, border_size: float = 8, border_radius: float = 20):
         self.icon = icon
-        super().__init__(screen, position, dimension, "", button_colors, on_click, visible=visible, border_size=border_size, border_radius=border_radius)
+        super().__init__(screen, position, dimension, "", button_colors, on_click, visible=visible, border_size=border_size, border_radius=border_radius, sound=None)
 
     def draw(self):
         super().draw()

@@ -7,23 +7,28 @@ from Settings import Settings, SETTINGS_JSON
 
 from board.StandardBoard import StandardBoard
 
-from ui.Window import Window
 from scene.Scene import SceneId
 from scene.HomeScene import HomeScene
 from scene.GameScene import GameScene
 from scene.SceneHandler import SceneHandler, SceneSignals
+from ui.Window import Window
+from ui.MusicPlayer import MusicPlayer
 
 if __name__ == "__main__":
     Settings.load()
-    HotLoader.add_file(SETTINGS_JSON, Settings.load)
+    MusicPlayer.load()
     
-    window = Window((800, 700), "Checkers")
+    HotLoader.add_file(SETTINGS_JSON, Settings.load)
+    HotLoader.add_callback(SETTINGS_JSON, MusicPlayer.load)
+    
+    window = Window((800, 700), "Checkers Blitz")
     home_scene = HomeScene(window.screen)
     game_scene = None
 
     SceneHandler.set_scene(home_scene)
     
     while True:
+        MusicPlayer.check()
         HotLoader.check()
         signal_id, data = SceneHandler.handle_events()
         if signal_id == SceneSignals.QUIT:

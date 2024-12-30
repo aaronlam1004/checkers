@@ -116,14 +116,14 @@ class HomeScene(Scene):
     def create_animations(self):
         self.subtitle_animator = Animator()
         subtitle_animation_values = { "x": (-self.subtitle_width, (self.width / 2)) }
-        self.subtitle_animator.set_translate(self.draw_subtitle, subtitle_animation_values, 1000)
+        self.subtitle_animator.set_translate(self.draw_subtitle, subtitle_animation_values, 500)
 
         self.piece_one_animator = Animator()
         piece_one_animation_values = { "y": (-self.piece_size, (self.title_height - (self.title_height / 3))) }
         self.piece_one_animator.set_translate(self.draw_title_piece, piece_one_animation_values, 2000)
 
         self.piece_two_animator = Animator()
-        piece_two_animation_values = { "y": (-self.piece_size, (self.title_height - (self.title_height / 3))) }
+        piece_two_animation_values = { "y": (-self.piece_size, (self.title_height - (self.title_height / 4))) }
         self.piece_two_animator.set_translate(self.draw_title_piece, piece_two_animation_values, 2000)
 
         self.piece_one_animator.start()
@@ -219,4 +219,12 @@ class HomeScene(Scene):
         if self.piece_one_animator.completed and self.piece_two_animator.completed:
             if not self.subtitle_animator.animating and not self.subtitle_animator.completed:
                 self.subtitle_animator.start()
-        
+            elif self.subtitle_animator.completed:
+                piece_one_animation_values = { "y": ((self.title_height - (self.title_height / 3)), (self.title_height - (self.title_height / 2))) }
+                self.piece_one_animator.set_sine(self.draw_title_piece, piece_one_animation_values, delay_ms=100)
+                self.piece_one_animator.start()
+
+                piece_two_animation_values = { "y": ((self.title_height - (self.title_height / 4)), (self.title_height - (self.title_height / 5))) }
+                self.piece_two_animator.set_sine(self.draw_title_piece, piece_two_animation_values, delay_ms=100)
+                self.piece_two_animator.start()
+                self.screen.fill(Colors.WHITE.value)

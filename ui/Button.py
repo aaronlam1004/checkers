@@ -4,7 +4,8 @@ from typing import Tuple, Callable, Optional
 import pygame
 from pygame.surface import Surface
 
-from Resources import Fonts
+from Resources import Sounds, Fonts
+from ui.AudioPlayer import AudioPlayer
 import ui.GraphicUtils as GraphicUtils
 
 @dataclass
@@ -19,21 +20,21 @@ class ButtonColors:
 class Button:
     def __init__(self, screen: Surface, position: Tuple[int, int], dimension: Tuple[int, int],
                  text: str, button_colors: ButtonColors, on_click: Optional[Callable[[None], None]],
-                 visible: bool = True, border_size: float = 8, border_radius: float = 20):
+                 visible: bool = True, border_size: float = 8, border_radius: float = 20,
+                 sound: Optional[pygame.mixer.Sound] = Sounds.MOVE.value):
         self.screen = screen
         self.x, self.y = position
         self.width, self.height = dimension
         self.text = text
-        self.on_click = on_click
-        self.visible = visible
-        self.border_radius = border_radius
-        self.border_size = border_size
-        self.set_colors(button_colors)
-
-    def set_colors(self, button_colors: ButtonColors):
         self.colors = button_colors
         self.color = self.colors.background
         self.border_color = self.colors.border
+        self.on_click = on_click
+        self.visible = visible
+        self.border_size = border_size
+        self.border_radius = border_radius
+        self.sound = sound
+        self.entered = True
 
     def set_text(self, text: str):
         self.text = text
@@ -54,9 +55,14 @@ class Button:
                     self.color = self.colors.highlight
                 if self.colors.highlight_border:
                     self.border_color = self.colors.highlight_border
+                if not self.entered:
+                    if self.sound:
+                        self.sound.play()
+                    self.entered = True
             else:
                 self.color = self.colors.background
                 self.border_color = self.colors.border
+                self.entered = False
 
     def click(self, mouse_x: int, mouse_y: int):
         if self.visible:

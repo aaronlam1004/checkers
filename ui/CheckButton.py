@@ -13,7 +13,7 @@ class CheckButton(Button):
                  visible: bool = True, border_size: float = 8, border_radius: float = 20):
         self.selected = selected
         self.check_size = 50
-        super().__init__(screen, position, dimension, text, button_colors, None, visible, border_size, border_radius)
+        super().__init__(screen, position, dimension, text, button_colors, None, visible, border_size, border_radius, sound=None)
    
     # @override
     def click(self, mouse_x: int, mouse_y: int):

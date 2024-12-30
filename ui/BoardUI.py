@@ -49,7 +49,7 @@ class BoardUI:
             if (row, col) in self.selected_moves:
                 captured_piece = self.selected_moves[(row, col)]
                 self.board.move(self.selected_piece, (row, col), captured_piece)
-                AudioPlayer.play_piece_move()
+                AudioPlayer.play_checker_sound()
                 if current_turn != self.board.turn:
                     self.selected_piece = None
                     self.selected_moves = {}

@@ -83,17 +83,13 @@ class GameOverPopup(Popup):
                         
 
 class GameScene(Scene):
-    def __init__(self, screen: Surface, board: Board, flipped: bool = False, is_online: bool = False):
+    def __init__(self, screen: Surface, board: Board, flipped: bool = False):
         self.id = SceneId.GAME
         self.options = {}
         self.screen = screen
         self.width, self.height = screen.get_rect().size
         self.board = board
-        self.is_online = is_online
-        if self.is_online:
-            self.board_ui = OnlineBoardUI(self.screen, board, (600, 600), (100, 50))
-        else:
-            self.board_ui = BoardUI(self.screen, board, (600, 600), (100, 50))
+        self.board_ui = BoardUI(self.screen, board, (600, 600), (100, 50))
         self.flipped = flipped
         self.create_buttons()
 
