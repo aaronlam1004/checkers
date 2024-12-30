@@ -19,7 +19,7 @@ if __name__ == "__main__":
     MusicPlayer.load()
     
     HotLoader.add_file(SETTINGS_JSON, Settings.load)
-    HotLoader.add_callback(SETTINGS_JSON, MusicPlayer.load)
+    HotLoader.add_callback(SETTINGS_JSON, MusicPlayer.reload)
     
     window = Window((800, 700), "Checkers Blitz")
     home_scene = HomeScene(window.screen)
@@ -28,8 +28,9 @@ if __name__ == "__main__":
     SceneHandler.set_scene(home_scene)
     
     while True:
-        MusicPlayer.check()
         HotLoader.check()
+        if MusicPlayer.playing:
+            MusicPlayer.check()       
         signal_id, data = SceneHandler.handle_events()
         if signal_id == SceneSignals.QUIT:
             break

@@ -18,8 +18,7 @@ class Animator:
     def set_translate(self, draw_method: Callable,
                       animation_values: Dict[str, Tuple[float, float]],
                       time_ms: float,
-                      loop: bool = False,
-                      delay_ms: float = 0):
+                      loop: bool = False):
         self.loop = loop
         self.draw_method = draw_method
         self.animation_values = animation_values
@@ -29,12 +28,10 @@ class Animator:
             start_value, end_value = anim_range
             self.values[arg] = start_value
             self.increments[arg] = lambda x: x + ((end_value - start_value) / (time_ms / 10))
-        self.delay_ms = delay_ms
         self.completed = False
 
     def set_sine(self, draw_method: Callable,
-                 animation_values: Dict[str, Tuple[float, float]],
-                 delay_ms: float = 0):
+                 animation_values: Dict[str, Tuple[float, float]]):
         self.loop = True
         self.draw_method = draw_method
         self.animation_values = animation_values
@@ -45,11 +42,11 @@ class Animator:
             a = (end_value - start_value) / 2
             c = end_value - a
             self.increments[arg] = lambda x: (a * math.sin(3 * time.time())) + c
-        self.delay_ms = delay_ms
         self.completed = False
 
-    def start(self):
+    def start(self, delay_ms: float = 0):
         self.animating = True
+        self.delay_ms = delay_ms
         self.start_time_ms = time.time() * 1000
 
     def stop(self):

@@ -13,6 +13,8 @@ from ui.CheckButton import CheckButton
 from ui.Colors import Colors
 from ui.Popup import Popup
 from ui.Animator import Animator
+from ui.AudioPlayer import AudioPlayer
+from ui.MusicPlayer import MusicPlayer
 import ui.GraphicUtils as GraphicUtils
 
 class NewGamePopup(Popup):
@@ -218,13 +220,15 @@ class HomeScene(Scene):
         self.draw()
         if self.piece_one_animator.completed and self.piece_two_animator.completed:
             if not self.subtitle_animator.animating and not self.subtitle_animator.completed:
-                self.subtitle_animator.start()
+                AudioPlayer.play_speed_sound()
+                self.subtitle_animator.start(delay_ms=250)
             elif self.subtitle_animator.completed:
+                self.screen.fill(Colors.YELLOW.value)
                 piece_one_animation_values = { "y": ((self.title_height - (self.title_height / 3)), (self.title_height - (self.title_height / 2))) }
-                self.piece_one_animator.set_sine(self.draw_title_piece, piece_one_animation_values, delay_ms=100)
-                self.piece_one_animator.start()
+                self.piece_one_animator.set_sine(self.draw_title_piece, piece_one_animation_values)
+                self.piece_one_animator.start(delay_ms=100)
 
                 piece_two_animation_values = { "y": ((self.title_height - (self.title_height / 4)), (self.title_height - (self.title_height / 5))) }
-                self.piece_two_animator.set_sine(self.draw_title_piece, piece_two_animation_values, delay_ms=100)
-                self.piece_two_animator.start()
-                self.screen.fill(Colors.WHITE.value)
+                self.piece_two_animator.set_sine(self.draw_title_piece, piece_two_animation_values)
+                self.piece_two_animator.start(delay_ms=100)
+                MusicPlayer.play()

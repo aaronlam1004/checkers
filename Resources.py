@@ -12,6 +12,7 @@ pygame.mixer.init()
 
 class Sounds(Enum):
     MOVE = pygame.mixer.Sound(os.path.join(AUDIO, "move.wav"))
+    SPEED = pygame.mixer.Sound(os.path.join(AUDIO, "speed.mp3"))
 
 
 class Fonts(Enum):

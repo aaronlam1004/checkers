@@ -10,6 +10,7 @@ class MusicPlayer:
     tracks = []
     queue = []
     music_channel = pygame.mixer.find_channel()
+    playing = False
     
     @staticmethod
     def load():
@@ -18,12 +19,12 @@ class MusicPlayer:
         if os.path.exists(music_dir) and os.path.isdir(music_dir):
             MusicPlayer.tracks = [pygame.mixer.Sound(music) for music in glob.glob(f"{music_dir}/*.mp3")]
             MusicPlayer.queue = MusicPlayer.tracks.copy()
-            MusicPlayer.start()
 
     @staticmethod
-    def start():
+    def play():
         MusicPlayer.music_channel.set_volume(0.35)
         MusicPlayer.play_next_song()
+        MusicPlayer.playing = True
 
     @staticmethod
     def check():
@@ -38,3 +39,8 @@ class MusicPlayer:
             index = random.randint(0, len(MusicPlayer.queue) - 1)
             track = MusicPlayer.queue.pop(index)
             MusicPlayer.music_channel.play(track)
+
+    @staticmethod
+    def reload():
+        MusicPlayer.load()
+        MusicPlayer.play()
