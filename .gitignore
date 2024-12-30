@@ -8,3 +8,5 @@ client.py
 main.py
 requirements.txt
 settings.json
+build
+dist
