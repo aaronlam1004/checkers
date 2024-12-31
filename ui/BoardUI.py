@@ -1,8 +1,9 @@
 import math
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Optional, Any
 
 import pygame
 from pygame.surface import Surface
+from pygame.event import Event
 
 from Settings import ColorSettings
 from Resources import Images
@@ -26,7 +27,7 @@ class BoardUI:
 
         self.drag_piece = False
 
-    def get_mouse_board_position(self):
+    def get_mouse_board_position(self) -> Tuple[float, float]:
         mouse_x, mouse_y = pygame.mouse.get_pos()
         width, height = self.dimensions
         offset_x, offset_y = self.offset
@@ -34,7 +35,7 @@ class BoardUI:
         col = (mouse_x - offset_x) // (width // self.board.size)
         return (row, col)
 
-    def get_select_piece_event(self):
+    def get_select_piece_event(self) -> Tuple[Optional[Piece], Dict[Tuple[int, int], Optional[Piece]]]:
         row, col = self.get_mouse_board_position()
         moves_dict = self.board.moves_dict
         if (row, col) in moves_dict:
@@ -42,7 +43,7 @@ class BoardUI:
         else:
             return None, {}
 
-    def handle_move_piece_event(self):
+    def handle_move_piece_event(self) -> None:
         current_turn = self.board.turn
         if self.selected_piece is not None and len(self.selected_moves) > 0:
             row, col = self.get_mouse_board_position()
@@ -56,7 +57,7 @@ class BoardUI:
                 else:
                     self.selected_moves = self.board.moves_dict
 
-    def handle_event(self, event):
+    def handle_event(self, event: Event) -> Tuple[int, Optional[Dict[Any, Any]]]:
         if event.type == pygame.MOUSEBUTTONDOWN:
             piece, moves = self.get_select_piece_event()
             if piece is not None:
@@ -73,14 +74,14 @@ class BoardUI:
                 self.selected_piece, self.selected_moves = self.get_select_piece_event()
         return SceneSignals.NONE, None
 
-    def draw(self):
+    def draw(self) -> None:
         width, height = self.dimensions
         scalars = (width / self.board.size, height / self.board.size)
         self.draw_board(scalars)
         self.draw_pieces(self.board.players[PlayerId.ONE], scalars)
         self.draw_pieces(self.board.players[PlayerId.TWO], scalars)
 
-    def draw_board(self, scalars: Tuple[float, float]):
+    def draw_board(self, scalars: Tuple[float, float]) -> None:
         color_white = ColorSettings.white_tile
         color_black = ColorSettings.black_tile
         color_move = Colors.MOVE.value
@@ -119,7 +120,7 @@ class BoardUI:
             x = offset_x
             y += scalar_y
             
-    def draw_pieces(self, player: Player, scalars: Tuple[float, float]):
+    def draw_pieces(self, player: Player, scalars: Tuple[float, float]) -> None:
         if player.id == PlayerId.ONE:
             color_player = ColorSettings.player_one
         else:
@@ -127,7 +128,7 @@ class BoardUI:
         for piece in player.pieces:
             self.draw_piece(piece, scalars, color_player)
 
-    def draw_piece(self, piece: Piece, scalars: Tuple[float, float], color: Tuple[int, int, int]):
+    def draw_piece(self, piece: Piece, scalars: Tuple[float, float], color: Tuple[int, int, int]) -> None:
         scalar_x, scalar_y = scalars
         if piece.row != - 1 and piece.col != -1:
             if self.selected_piece:
@@ -149,5 +150,5 @@ class BoardUI:
                 y = row * scalar_y + (offset_y + (margin / 2))
             GraphicUtils.draw_piece(self.screen, (x, y), (scalar_x - 8, scalar_y - 8), color, outline_color=color_outline, bg_size=margin, outline_size=margin, is_king=piece.is_king)
 
-    def update(self):
+    def update(self) -> None:
         self.draw_game()

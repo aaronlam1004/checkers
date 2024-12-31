@@ -1,4 +1,4 @@
-from typing import Optional, Callable
+from typing import Optional, Callable, Tuple, Optional, Dict, Any
 from enum import IntEnum
 
 import pygame
@@ -15,11 +15,11 @@ class SceneHandler:
     scene = None
 
     @staticmethod
-    def set_scene(scene: Scene):
+    def set_scene(scene: Scene) -> None:
         SceneHandler.scene = scene
     
     @staticmethod
-    def handle_events():
+    def handle_events() -> Tuple[int, Optional[Dict[Any, Any]]]:
         event_data = None
         event_signal = SceneSignals.NONE
         for event in pygame.event.get():

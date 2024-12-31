@@ -1,5 +1,5 @@
 import time
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict
 from enum import IntEnum
 from dataclasses import dataclass
 
@@ -29,8 +29,6 @@ class BoardState(IntEnum):
 
 class Board:
     def __init__(self, flipped: bool = False):
-        """
-        """
         self.size = 8
         self.moves_dict = {}
         self.num_turns = 0
@@ -40,41 +38,30 @@ class Board:
         self.player_bottom_id = PlayerId.ONE if not flipped else PlayerId.TWO
         self.player_top_id = PlayerId.TWO if not flipped else PlayerId.ONE
 
-    def enable_blitz_mode(self):
-        """
-        """
+    def enable_blitz_mode(self) -> None:
         if self.num_turns == 0:
             self.blitz_mode = True
 
-    def enable_all_kings_mode(self):
+    def enable_all_kings_mode(self) -> None:
         if self.num_turns == 0:
             for player in self.players.values():
                 for piece in player.pieces:
                     piece.is_king = True
 
-    def set_size(self, size: int):
-        """
-        """
+    def set_size(self, size: int) -> None:
         self.size = size
         self.setup()
 
-    def set_idle(self):
-        """
-        """
+    def set_idle(self) -> None:
         self.playing = False
 
-    def setup(self):
-        """
-        """
+    def setup(self) -> None:
         self.num_turns = 0
         self.board = [[-1 for _ in range(self.size)] for _ in range(self.size)]
         self.load()
         self.playing = True
 
-    def load(self):
-        """
-        Initializes standard game
-        """
+    def load(self) -> None:
         # Setup players
         self.players = {
             PlayerId.ONE: Player(PlayerId.ONE, []),
@@ -99,9 +86,7 @@ class Board:
         # Get starting moves
         self.moves_dict = self.get_all_moves()
 
-    def state(self):
-        """
-        """
+    def state(self) -> int:
         if not self.playing:
             return BoardState.IDLE
         if self.turn == PlayerId.ONE and len(self.moves_dict) == 0:
@@ -122,51 +107,35 @@ class Board:
                 return BoardState.RED_WIN
         return BoardState.NEUTRAL
 
-    def surrender(self, player_id: int):
-        """
-        """
+    def surrender(self, player_id: int) -> None:
         if player_id in PlayerId:
             player_win_id = PlayerId.ONE if player_id == PlayerId.TWO else PlayerId.TWO
             self.players[player_win_id].captured = len(self.players[player_id].pieces)
 
-    def check_in_bounds(self, row: int, col: int):
-        """
-        """
+    def check_in_bounds(self, row: int, col: int) -> bool:
         return row >= 0 and row < self.size and col >= 0 and col < self.size
 
-    def check_can_promote(self, row: int, col: int):
-        """
-        """
+    def check_can_promote(self, row: int, col: int) -> bool:
         if self.turn == self.player_bottom_id:
             return row == 0
         else:
             return row == self.size - 1
 
-    def find_piece(self, row: int, col: int):
-        """
-        """
+    def find_piece(self, row: int, col: int) -> Optional[Piece]:
         if self.check_in_bounds(row, col):
             return self.board[row][col]
         return -1
 
-    def get_piece_capture_moves(self, piece: Piece):
-        """
-        """
+    def get_piece_capture_moves(self, piece: Piece) -> Tuple[Dict[Tuple[int, int], Optional[Piece]], bool]:
         return {}, False
     
-    def get_piece_moves(self, piece: Piece):
-        """
-        """
+    def get_piece_moves(self, piece: Piece) -> Tuple[Dict[Tuple[int, int], Optional[Piece]], bool]:
         return {}, False
 
-    def get_all_moves(self):
-        """
-        """
+    def get_all_moves(self) -> Dict[Tuple[int, int], Dict[Tuple[int, int], Optional[Piece]]]:
         return {}
 
-    def move(self, piece: Piece, coord: Tuple[int, int], capture: Optional[Piece] = None):
-        """
-        """
+    def move(self, piece: Piece, coord: Tuple[int, int], capture: Optional[Piece] = None) -> None:
         change_turn = True
         row, col = coord
         if self.check_in_bounds(row, col):
@@ -193,9 +162,7 @@ class Board:
                 self.timestamp = time.time()
                 self.num_turns += 1
 
-    def update(self):
-        """
-        """
+    def update(self) -> None:
         if self.state() == BoardState.NEUTRAL:
             if self.blitz_mode and self.num_turns > 0:
                 player = self.players[self.turn]

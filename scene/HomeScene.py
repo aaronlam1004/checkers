@@ -1,7 +1,8 @@
-from typing import Tuple
+from typing import Tuple, Optional, Dict, Any
 
 import pygame
 from pygame.surface import Surface
+from pygame.event import Event
 
 from Resources import Fonts
 from Settings import ColorSettings
@@ -12,79 +13,11 @@ from ui.Constants import UI_BUTTON_COLORS
 from ui.Button import Button
 from ui.CheckButton import CheckButton
 from ui.Colors import Colors
-from ui.Popup import Popup
+from ui.NewGamePopup import NewGamePopup
 from ui.Animator import Animator
 from ui.AudioPlayer import AudioPlayer
 from ui.MusicPlayer import MusicPlayer
 import ui.GraphicUtils as GraphicUtils
-
-class NewGamePopup(Popup):
-    def __init__(self, screen: Surface, parent: Scene):
-        self.parent = parent
-        self.player_win_id = -1
-        super().__init__(screen)
-        self.height = (self.screen_height * 0.75) - (self.margin * 2)
-        self.y = (self.screen_height - self.height) * 0.75
-        self.create_buttons()
-
-    def set_player_win(self, player_win_id: int):
-        self.player_win_id = player_win_id
-
-    def create_buttons(self):
-        button_margin = 25
-        button_width = self.width - (button_margin * 2)
-        button_height = 50
-        x = self.margin + (button_margin)
-
-        check_y = self.y + (self.height / 4) - button_height
-        blitz_check_button = CheckButton(self.screen, (x, check_y), (button_width, button_height), "BLITZ MODE", UI_BUTTON_COLORS, selected=True)
-        check_y += button_height + 10
-        force_capture_check_button = CheckButton(self.screen, (x, check_y), (button_width, button_height), "FORCE CAPTURE", UI_BUTTON_COLORS)      
-        check_y += button_height + 10
-        all_kings_check_button = CheckButton(self.screen, (x, check_y), (button_width, button_height), "ALL KINGS", UI_BUTTON_COLORS)
-        
-        y = self.y + ((self.height * 2) / 3)
-        start_button = Button(self.screen, (x, y), (button_width , button_height), "START", UI_BUTTON_COLORS, self.handle_start_button)
-        y += button_height + 10
-        close_button = Button(self.screen, (x, y), (button_width, button_height), "CLOSE", UI_BUTTON_COLORS, self.handle_close_button)
-        self.check_buttons = {
-            "blitz": blitz_check_button,
-            "force_capture": force_capture_check_button,
-            "all_kings": all_kings_check_button
-        }
-        self.buttons = [
-            blitz_check_button,
-            force_capture_check_button,
-            all_kings_check_button,
-            start_button,
-            close_button
-        ]
-
-    def handle_start_button(self):
-        self.hide()
-        self.parent.play_clicked = True
-
-    def handle_close_button(self):
-        self.hide()
-
-    # @override
-    def draw_popup(self):
-        super().draw_popup()
-        self.draw_title()
-
-    def draw_title(self):
-        font_size = int((self.width - self.border_size) / 10)
-        text = f"New Game"
-        title_font = pygame.font.Font(Fonts.STAR_BORN.value, font_size)
-        text_render = title_font.render(text, False, Colors.BLACK.value)
-        text_width, text_height = text_render.get_rect().size
-        
-        x = self.margin + ((self.width - text_width) / 2)
-        y = self.y - text_height
-
-        border_text_render = title_font.render(text, False, Colors.WHITE.value)
-        GraphicUtils.draw_text_border(self.screen, border_text_render, x, y, 10)
-        self.screen.blit(text_render, (x, y))
 
 class HomeScene(Scene):
     def __init__(self, screen: Surface):
@@ -106,7 +39,7 @@ class HomeScene(Scene):
         # Popup
         self.popup_new_game = NewGamePopup(self.screen, self)
 
-    def create_buttons(self):
+    def create_buttons(self) -> None:
         button_width = self.width / 2
         button_height = 50
         x = (self.width / 2) - (button_width / 2)
@@ -116,7 +49,7 @@ class HomeScene(Scene):
         quit_button = Button(self.screen, (x, y), (button_width, button_height), "QUIT", UI_BUTTON_COLORS, self.handle_quit_button)
         self.buttons = [play_button, quit_button]
 
-    def create_animations(self):
+    def create_animations(self) -> None:
         self.subtitle_animator = Animator()
         subtitle_animation_values = { "x": (-self.subtitle_width, (self.width / 2)) }
         self.subtitle_animator.set_translate(self.draw_subtitle, subtitle_animation_values, 500)
@@ -132,14 +65,14 @@ class HomeScene(Scene):
         self.piece_one_animator.start()
         self.piece_two_animator.start()
         
-    def handle_play_button(self):
+    def handle_play_button(self) -> None:
         self.popup_new_game.show()
         
-    def handle_quit_button(self):
+    def handle_quit_button(self) -> None:
         self.quit_clicked = True
         
     # @override
-    def handle_event(self, event):
+    def handle_event(self, event: Event) -> Tuple[int, Optional[Dict[Any, Any]]]:
         if self.play_clicked:
             data = {
                 key: check_button.selected for key, check_button in self.popup_new_game.check_buttons.items()
@@ -164,7 +97,7 @@ class HomeScene(Scene):
                     self.handle_quit_button()
         return SceneSignals.NONE, None
 
-    def draw(self):       
+    def draw(self) -> None:       
         offset_x = self.title_width / 4
         GraphicUtils.draw_background(self.screen)
         self.piece_one_animator.animate(offset_x=offset_x, color=ColorSettings.player_one)
@@ -177,21 +110,21 @@ class HomeScene(Scene):
             button.draw()
         self.popup_new_game.draw()
 
-    def get_title_size(self):
+    def get_title_size(self) -> Tuple[float, float]:
         font_size = int(self.width / 8)
         title_font = pygame.font.Font(Fonts.STAR_BORN.value, font_size)
         text_render = title_font.render("Checkers", False, Colors.UI_RED.value)
         text_width, text_height = text_render.get_rect().size
         return text_width, text_height
 
-    def get_subtitle_size(self):
+    def get_subtitle_size(self) -> Tuple[float, float]:
         font_size = int(self.width / 8)
         subtitle_font = pygame.font.Font(Fonts.BLACK_BIRD.value, font_size)
         text_render = subtitle_font.render("Blitz", False, Colors.YELLOW.value)
         text_width, text_height = text_render.get_rect().size
         return text_width, text_height
        
-    def draw_title(self):
+    def draw_title(self) -> None:
         font_size = int(self.width / 8)
         title_font = pygame.font.Font(Fonts.STAR_BORN.value, font_size)
         text_render = title_font.render("Checkers", False, Colors.UI_RED.value)
@@ -202,11 +135,11 @@ class HomeScene(Scene):
         GraphicUtils.draw_text_border(self.screen, border_text_render, x, y, 5)
         self.screen.blit(text_render, (x, y))
 
-    def draw_title_piece(self, y: float, offset_x: float, color: Tuple[int, int, int]):
+    def draw_title_piece(self, y: float, offset_x: float, color: Tuple[int, int, int]) -> None:
         x = (self.width / 10)
         GraphicUtils.draw_piece(self.screen, (x + offset_x, y), (self.piece_size, self.piece_size), color, outline_color=Colors.WHITE.value)
 
-    def draw_subtitle(self, x: float, offset_y: float):
+    def draw_subtitle(self, x: float, offset_y: float) -> None:
         font_size = int(self.width / 8)
         subtitle_font = pygame.font.Font(Fonts.BLACK_BIRD.value, font_size)
         text_render = subtitle_font.render("Blitz", False, Colors.YELLOW.value)
@@ -216,14 +149,14 @@ class HomeScene(Scene):
         GraphicUtils.draw_text_border(self.screen, border_text_render, x, y, 5)
         self.screen.blit(text_render, (x, y))
 
-    def draw_version(self):
+    def draw_version(self) -> None:
         font_size = 20
         version_font = pygame.font.Font(Fonts.STAR_BORN.value, font_size)
         text_render = version_font.render(VERSION_STR, False, Colors.YELLOW.value)
         text_width, text_height = text_render.get_rect().size
         self.screen.blit(text_render, (self.width - text_width - 10, self.height - text_height - 10))
         
-    def update(self):
+    def update(self) -> None:
         self.draw()
         if self.piece_one_animator.completed and self.piece_two_animator.completed:
             if not self.subtitle_animator.animating and not self.subtitle_animator.completed:

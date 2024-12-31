@@ -14,9 +14,9 @@ class Window:
         pygame.display.set_icon(self.icon)
         pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
 
-    def set_title(self, title: str):
+    def set_title(self, title: str) -> None:
         self.title = title
         pygame.display.set_caption(self.title)
 
-    def update(self):
+    def update(self) -> None:
         pygame.display.update()

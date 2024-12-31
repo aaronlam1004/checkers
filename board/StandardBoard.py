@@ -3,19 +3,15 @@ from board.Board import *
 
 class StandardBoard(Board):
     def __init__(self, flipped: bool = False):
-        """
-        """
         self.force_capture = False
         super().__init__(flipped)
 
-    def enable_force_capture(self):
+    def enable_force_capture(self) -> None:
         if self.num_turns == 0:
             self.force_capture = True
 
     # @override
-    def get_piece_capture_moves(self, piece: Piece):
-        """
-        """
+    def get_piece_capture_moves(self, piece: Piece) -> Tuple[Dict[Tuple[int, int], Optional[Piece]], bool]:
         row = piece.row
         col = piece.col
         moves = {}
@@ -49,9 +45,7 @@ class StandardBoard(Board):
         return moves, can_capture
 
     # @override
-    def get_piece_moves(self, piece: Piece):
-        """
-        """
+    def get_piece_moves(self, piece: Piece) -> Tuple[Dict[Tuple[int, int], Optional[Piece]], bool]:
         moves = {}
         can_capture = False
         row = piece.row
@@ -72,9 +66,7 @@ class StandardBoard(Board):
         return moves, can_capture
 
     # @override
-    def get_all_moves(self):
-        """
-        """
+    def get_all_moves(self) -> Dict[Tuple[int, int], Dict[Tuple[int, int], Optional[Piece]]]:
         capture_move = False
         move_dict = {}
         player = self.players[self.turn]

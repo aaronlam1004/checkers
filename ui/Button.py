@@ -36,19 +36,19 @@ class Button:
         self.sound = sound
         self.entered = True
 
-    def set_text(self, text: str):
+    def set_text(self, text: str) -> None:
         self.text = text
 
-    def show(self):
+    def show(self) -> None:
         self.visible = True
 
-    def hide(self):
+    def hide(self) -> None:
         self.visible = False
 
-    def in_area(self, mouse_x: int, mouse_y: int):
+    def in_area(self, mouse_x: int, mouse_y: int) -> bool:
         return mouse_x >= self.x and mouse_x <= self.x + self.width and mouse_y >= self.y and mouse_y <= self.y + self.height
 
-    def hover(self, mouse_x: int, mouse_y: int):
+    def hover(self, mouse_x: int, mouse_y: int) -> None:
         if self.visible:
             if self.in_area(mouse_x, mouse_y):
                 if self.colors.highlight:
@@ -64,13 +64,13 @@ class Button:
                 self.border_color = self.colors.border
                 self.entered = False
 
-    def click(self, mouse_x: int, mouse_y: int):
+    def click(self, mouse_x: int, mouse_y: int) -> None:
         if self.visible:
             if self.in_area(mouse_x, mouse_y):
                 if self.on_click:
                     self.on_click()
 
-    def draw(self):
+    def draw(self) -> None:
         if self.visible:
             x = self.x
             y = self.y
@@ -85,7 +85,7 @@ class Button:
             pygame.draw.rect(self.screen, self.color, (x, y, width, height), border_radius=self.border_radius)
             self.draw_text()
 
-    def draw_text(self):
+    def draw_text(self) -> None:
         screen_width, screen_height = self.screen.get_rect().size
         aspect_ratio = screen_width / screen_height
 

@@ -16,13 +16,13 @@ class CheckButton(Button):
         super().__init__(screen, position, dimension, text, button_colors, None, visible, border_size, border_radius, sound=None)
    
     # @override
-    def click(self, mouse_x: int, mouse_y: int):
+    def click(self, mouse_x: int, mouse_y: int) -> None:
         if self.visible:
             if self.in_area(mouse_x, mouse_y):
                 self.selected = not self.selected
 
     # @override
-    def draw(self):
+    def draw(self) -> None:
         if self.visible:
             x = self.x
             y = self.y
@@ -40,7 +40,7 @@ class CheckButton(Button):
             self.draw_text()
 
     # @override
-    def draw_text(self):
+    def draw_text(self) -> None:
         screen_width, screen_height = self.screen.get_rect().size
         aspect_ratio = screen_width / screen_height
 

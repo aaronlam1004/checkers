@@ -12,12 +12,12 @@ class IconButton(Button):
         self.icon = icon
         super().__init__(screen, position, dimension, "", button_colors, on_click, visible=visible, border_size=border_size, border_radius=border_radius, sound=None)
 
-    def draw(self):
+    def draw(self) -> None:
         super().draw()
         if self.visible:
             self.draw_icon()
 
-    def draw_icon(self):
+    def draw_icon(self) -> None:
         icon_width = self.width / 1.5
         icon_height = self.height / 1.5
         icon_img = pygame.image.load(self.icon).convert_alpha()

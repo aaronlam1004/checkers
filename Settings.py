@@ -1,17 +1,17 @@
 import os
 import json
-from typing import Tuple
+from typing import Tuple, Optional, Dict
 
 from ui.Colors import Colors
 
 SETTINGS_JSON = os.path.join(os.path.dirname(__file__), "settings.json")
 MUSIC_DIRECTORY = os.path.join(os.path.dirname(__file__), "resources", "music")
 
-def rgb_to_hex(color: Tuple[int, int, int]):
+def rgb_to_hex(color: Tuple[int, int, int]) -> str:
     r, g, b = color
     return f"#{r:02x}{g:02x}{b:02x}"
 
-def hex_to_rgb(color: str):
+def hex_to_rgb(color: str) -> Optional[Tuple[int, int, int]]:
     if len(color) != 7:
         return None
     if not color.startswith('#'):
@@ -37,7 +37,7 @@ class ColorSettings:
     game_button_icon = (255, 255, 255)
 
     @staticmethod
-    def get_contrast_color(color: Tuple[int, int, int]):
+    def get_contrast_color(color: Tuple[int, int, int]) -> Tuple[int, int, int]:
         max_value = 0xFF
         r, g, b = color
         avg_value = (r + g + b) / 3
@@ -46,7 +46,7 @@ class ColorSettings:
         return Colors.WHITE.value
 
     @staticmethod
-    def get_bg_color(color: Tuple[int, int, int]):
+    def get_bg_color(color: Tuple[int, int, int]) -> Tuple[int, int, int]:
         max_value = 0xFF
         r, g, b = color
         avg_value = (r + g + b) / 3
@@ -65,7 +65,7 @@ class ColorSettings:
         return (int(r), int(g), int(b))
 
     @staticmethod
-    def to_dict():
+    def to_dict() -> Dict[str, str]:
         return {
             "player_one": rgb_to_hex(ColorSettings.player_one),
             "player_two": rgb_to_hex(ColorSettings.player_two),
@@ -80,12 +80,12 @@ class MusicSettings:
     directory = MUSIC_DIRECTORY
 
     @staticmethod
-    def to_dict():
+    def to_dict() -> Dict[str, str]:
         return { "directory": MusicSettings.directory }
     
 class Settings:    
     @staticmethod
-    def load():
+    def load() -> None:
         if os.path.exists(SETTINGS_JSON):
             try:
                 with open(SETTINGS_JSON, 'r') as settings_json:
@@ -108,7 +108,7 @@ class Settings:
             Settings.export()
                 
     @staticmethod
-    def export():
+    def export() -> None:
         settings = {}
         settings["color"] = ColorSettings.to_dict()
         settings["music"] = MusicSettings.to_dict()

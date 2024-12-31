@@ -29,16 +29,16 @@ class Popup:
         self.colors = PopupColors()
         self.border_size = border_size
 
-    def set_title(self, title: str):
+    def set_title(self, title: str) -> None:
         self.title = title
 
-    def show(self):
+    def show(self) -> None:
         self.visible = True
 
-    def hide(self):
+    def hide(self) -> None:
         self.visible = False
 
-    def handle_event(self, event: Event):
+    def handle_event(self, event: Event) -> None:
         mouse_x, mouse_y = pygame.mouse.get_pos()
         if self.visible:
             if event.type == pygame.MOUSEMOTION:
@@ -51,18 +51,18 @@ class Popup:
                 if event.key == pygame.K_ESCAPE:
                     self.hide()
 
-    def draw(self):
+    def draw(self) -> None:
         if self.visible:
             self.draw_background()
             self.draw_popup()
 
-    def draw_background(self):
+    def draw_background(self) -> None:
         trans_surface = pygame.Surface((self.screen_width, self.screen_height))
         trans_surface.set_alpha(128)
         trans_surface.fill(Colors.BLACK.value)
         self.screen.blit(trans_surface, (0, 0))
             
-    def draw_popup(self):
+    def draw_popup(self) -> None:
         x = self.x
         y = self.y
         width = self.width

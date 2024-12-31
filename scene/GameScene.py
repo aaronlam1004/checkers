@@ -1,7 +1,8 @@
-from typing import Tuple
+from typing import Tuple, Optional, Dict, Any
 
 import pygame
 from pygame.surface import Surface
+from pygame.event import Event
 
 from Settings import ColorSettings
 from Resources import Images, Fonts
@@ -12,75 +13,10 @@ from ui.Constants import UI_BUTTON_COLORS
 from ui.Button import ButtonColors
 from ui.IconButton import Button, IconButton
 from ui.BoardUI import BoardUI
-from ui.Popup import Popup
+from ui.GameOverPopup import GameOverPopup
 from ui.Colors import Colors
 import ui.GraphicUtils as GraphicUtils
-
-class GameOverPopup(Popup):
-    def __init__(self, screen: Surface, parent: Scene):
-        self.parent = parent
-        self.player_win_id = -1
-        super().__init__(screen)
-        self.height = (self.screen_height / 2) - (self.margin * 2)
-        self.y = (self.screen_height - self.height) / 2
-        self.create_buttons()
-
-    def set_player_win(self, player_win_id: int):
-        self.player_win_id = player_win_id
-
-    def create_buttons(self):
-        button_margin = 25
-        button_width = self.width - (button_margin * 2)
-        button_height = 50
-        x = self.margin + (button_margin)
-        y = self.y + (self.height / 2) - button_height
-        play_again_button = Button(self.screen, (x, y), (button_width , button_height), "PLAY AGAIN", UI_BUTTON_COLORS, self.handle_play_again_button)
-        y += button_height + 10
-        close_button = Button(self.screen, (x, y), (button_width, button_height), "CLOSE", UI_BUTTON_COLORS, self.handle_close_button)
-        self.buttons = [play_again_button, close_button]
-
-    # @override
-    def hide(self):
-        self.parent.board.set_idle()
-        super().hide()
-
-    def handle_play_again_button(self):
-        self.hide()
-        self.parent.board.setup()
-
-    def handle_close_button(self):
-        self.hide()
-
-    # @override
-    def draw_popup(self):
-        if self.player_win_id in PlayerId:
-            player_color = ColorSettings.player_one
-            if self.player_win_id == PlayerId.TWO:
-                player_color = ColorSettings.player_two
-            piece_width, piece_height = (175, 175)
-            piece_x = (self.screen_width - self.margin) - piece_width
-            piece_y = self.height - self.margin - (piece_height / 1.75)
-            GraphicUtils.draw_piece(self.screen, (piece_x, piece_y), (piece_width, piece_height), player_color, outline_color=Colors.WHITE.value)
-        super().draw_popup()
-        self.draw_title(self.player_win_id, player_color)
-
-    def draw_title(self, player_id: int, player_color: Tuple[int, int, int]):
-        font_size = int((self.width - self.border_size) / 10)
-        text = f"Player {player_id + 1} Wins"
-        title_font = pygame.font.Font(Fonts.STAR_BORN.value, font_size)
-        text_render = title_font.render(text, False, player_color)
-        text_width, text_height = text_render.get_rect().size
-        
-        x = self.margin + ((self.width - text_width) / 2)
-        y = self.y - text_height
-
-        border_text_render = title_font.render(text, False, Colors.WHITE.value)
-        GraphicUtils.draw_text_border(self.screen, border_text_render, x, y, 10)
-        inside_border_text_render = title_font.render(text, False, ColorSettings.get_bg_color(player_color))
-        GraphicUtils.draw_text_border(self.screen, inside_border_text_render, x, y, 4)
-        self.screen.blit(text_render, (x, y))
                         
-
 class GameScene(Scene):
     def __init__(self, screen: Surface, board: Board, flipped: bool = False):
         self.id = SceneId.GAME
@@ -98,7 +34,7 @@ class GameScene(Scene):
         # Signals
         self.home_clicked = False
 
-    def create_buttons(self):
+    def create_buttons(self) -> None:
         button_colors = ButtonColors(
             background=Colors.UI_BLACK.value,
             foreground=Colors.WHITE.value,
@@ -110,19 +46,19 @@ class GameScene(Scene):
         play_again_button = IconButton(self.screen, (15, 50), (70, 70), Images.REFRESH.value, button_colors, self.handle_play_again_button, border_radius=50, visible=False)
         self.buttons = [home_button, surrender_button, play_again_button]
 
-    def handle_home_button(self):
+    def handle_home_button(self) -> None:
         self.home_clicked = True
 
-    def handle_surrender_button(self):
+    def handle_surrender_button(self) -> None:
         # TODO: need to handle when online
         self.board.surrender(self.board.turn)
 
-    def handle_play_again_button(self):
+    def handle_play_again_button(self) -> None:
         # TODO: need to handle when online
         self.board.setup()
 
     # @override
-    def handle_event(self, event):
+    def handle_event(self, event: Event) -> Tuple[int, Optional[Dict[Any, Any]]]:
         if self.home_clicked:
             self.home_clicked = False
             return SceneSignals.HOME, None
@@ -143,7 +79,7 @@ class GameScene(Scene):
                 return self.board_ui.handle_event(event)
         return SceneSignals.NONE, None
 
-    def draw(self):
+    def draw(self) -> None:
         GraphicUtils.draw_background(self.screen)
         self.board_ui.draw()
         self.draw_status()
@@ -160,7 +96,7 @@ class GameScene(Scene):
             button.draw()
         self.popup_game_over.draw()
 
-    def draw_status(self):
+    def draw_status(self) -> None:
         status_width = 175
         status_height = 45
         x = (self.width - status_width)
@@ -178,7 +114,7 @@ class GameScene(Scene):
         pygame.draw.rect(self.screen, player_color, (x + (border / 2), status_y + (border / 2), status_width - border, status_height - border), border_top_left_radius=border_radius, border_bottom_left_radius=border_radius)
         self.draw_players_text(status_width, status_height, top_y, bottom_y)
 
-    def draw_players_text(self, status_width: float, status_height: float, top_y: float, bottom_y: float):
+    def draw_players_text(self, status_width: float, status_height: float, top_y: float, bottom_y: float) -> None:
         for player in self.board.players.values():
             draw_text = f"{player.id + 1}"
             if self.board.blitz_mode:
@@ -206,7 +142,7 @@ class GameScene(Scene):
                 text_y = player_two_y + (text_height / 2)
                 self.screen.blit(text_render, (text_x, text_y))
 
-    def draw_players_num_pieces(self):
+    def draw_players_num_pieces(self) -> None:
         piece_width, piece_height = (75, 75)
         y = self.height / 3
         player_id = PlayerId.TWO if not self.flipped else PlayerId.ONE
@@ -215,7 +151,7 @@ class GameScene(Scene):
         y += piece_height + 10
         self.draw_player_num_pieces(player_id, y)
 
-    def draw_player_num_pieces(self, player_id: PlayerId, y: float):
+    def draw_player_num_pieces(self, player_id: PlayerId, y: float) -> None:
         piece_width, piece_height = (75, 75)
         player_color = ColorSettings.player_one
         if player_id == PlayerId.TWO:
@@ -236,7 +172,7 @@ class GameScene(Scene):
         text_width, text_height = text_render.get_rect().size
         self.screen.blit(text_render, (10 + ((piece_width - text_width) / 2), y + ((piece_height - text_height) / 2), text_width, text_height))
                 
-    def update(self):
+    def update(self) -> None:
         self.draw()
         self.board.update()
         if self.board.state() != BoardState.NEUTRAL and self.board.state() != BoardState.IDLE:
