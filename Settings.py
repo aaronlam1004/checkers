@@ -2,10 +2,11 @@ import os
 import json
 from typing import Tuple, Optional, Dict
 
+from Resources import BASE_PATH, RESOURCE_PATH
 from ui.Colors import Colors
 
-SETTINGS_JSON = os.path.join(os.path.dirname(__file__), "settings.json")
-MUSIC_DIRECTORY = os.path.join(os.path.dirname(__file__), "resources", "music")
+SETTINGS_JSON = os.path.join(BASE_PATH, "settings.json")
+MUSIC_DIRECTORY = os.path.join(RESOURCE_PATH, "music")
 
 def rgb_to_hex(color: Tuple[int, int, int]) -> str:
     r, g, b = color

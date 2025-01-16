@@ -4,10 +4,12 @@ from enum import Enum
 
 import pygame
 
-try:
-    RESOURCE_PATH = os.path.join(sys._MEIPASS, "resources")
-except:
-    RESOURCE_PATH = os.path.join(os.path.dirname(__file__), "resources")
+if getattr(sys, "frozen", False):
+    BASE_PATH = os.path.dirname(os.path.abspath(sys.executable))
+else:
+    BASE_PATH = os.path.dirname(__file__)
+
+RESOURCE_PATH = os.path.join(BASE_PATH, "resources")
     
 AUDIO = os.path.join(RESOURCE_PATH, "audio")
 FONTS = os.path.join(RESOURCE_PATH, "fonts")
